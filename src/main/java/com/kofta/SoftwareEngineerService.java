@@ -26,4 +26,19 @@ public class SoftwareEngineerService {
     public void insertSoftwareEngineer(SoftwareEngineer softwareEngineer) {
         softwareEngineerRepository.save(softwareEngineer);
     }
+
+    public void updateSoftwareEngineer(Integer id, SoftwareEngineer updated) {
+        var existing = softwareEngineerRepository.findById(id).orElseThrow();
+
+        // will be used in a PUT method, so should be expected to have all fields
+        existing.setName(updated.getName());
+        existing.setTechStack(updated.getTechStack());
+
+        softwareEngineerRepository.save(existing);
+    }
+
+    public void deleteSoftwareEngineer(Integer id) {
+        softwareEngineerRepository.findById(id).orElseThrow();
+        softwareEngineerRepository.deleteById(id);
+    }
 }
