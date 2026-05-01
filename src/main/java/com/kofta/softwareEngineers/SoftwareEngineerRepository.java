@@ -1,4 +1,4 @@
-package com.kofta;
+package com.kofta.softwareEngineers;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

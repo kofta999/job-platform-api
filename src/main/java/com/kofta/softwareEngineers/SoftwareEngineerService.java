@@ -1,4 +1,4 @@
-package com.kofta;
+package com.kofta.softwareEngineers;
 
 import java.util.List;
 import org.springframework.stereotype.Service;

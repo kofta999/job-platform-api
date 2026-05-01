@@ -1,4 +1,4 @@
-package com.kofta;
+package com.kofta.softwareEngineers;
 
 import java.util.List;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,34 +15,50 @@ import org.springframework.web.bind.annotation.RestController;
 public class SoftwareEngineerController {
 
     private final SoftwareEngineerService softwareEngineerService;
+    private final SoftwareEngineerMapper mapper;
 
     public SoftwareEngineerController(
-        SoftwareEngineerService softwareEngineerService
+        SoftwareEngineerService softwareEngineerService,
+        SoftwareEngineerMapper softwareEngineerMapper
     ) {
         this.softwareEngineerService = softwareEngineerService;
+        this.mapper = softwareEngineerMapper;
     }
 
     @GetMapping
-    public List<SoftwareEngineer> getAll() {
-        return softwareEngineerService.getSoftwareEngineers();
+    public List<SoftwareEngineerDTO> getAll() {
+        return softwareEngineerService
+            .getSoftwareEngineers()
+            .stream()
+            .map(mapper::toDto)
+            .toList();
     }
 
     @GetMapping("{id}")
-    public SoftwareEngineer getById(@PathVariable Integer id) {
-        return softwareEngineerService.getSoftwareEngineerById(id);
+    public SoftwareEngineerDTO getById(@PathVariable Integer id) {
+        return mapper.toDto(
+            softwareEngineerService.getSoftwareEngineerById(id)
+        );
     }
 
     @PostMapping
-    public void addNew(@RequestBody SoftwareEngineer softwareEngineer) {
-        softwareEngineerService.insertSoftwareEngineer(softwareEngineer);
+    public void addNew(
+        @RequestBody CreateSoftwareEngineerDTO softwareEngineer
+    ) {
+        softwareEngineerService.insertSoftwareEngineer(
+            mapper.fromCreateDto(softwareEngineer)
+        );
     }
 
     @PutMapping("{id}")
     public void update(
-        @RequestBody SoftwareEngineer updated,
+        @RequestBody CreateSoftwareEngineerDTO updated,
         @PathVariable Integer id
     ) {
-        softwareEngineerService.updateSoftwareEngineer(id, updated);
+        softwareEngineerService.updateSoftwareEngineer(
+            id,
+            mapper.fromCreateDto(updated)
+        );
     }
 
     @DeleteMapping("{id}")

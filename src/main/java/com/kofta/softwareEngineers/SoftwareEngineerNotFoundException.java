@@ -1,4 +1,4 @@
-package com.kofta;
+package com.kofta.softwareEngineers;
 
 public class SoftwareEngineerNotFoundException extends RuntimeException {
 
