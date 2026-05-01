@@ -1,7 +1,6 @@
 package com.kofta;
 
 import java.util.List;
-import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,8 +18,14 @@ public class SoftwareEngineerService {
         return softwareEngineerRepository.findAll();
     }
 
-    public Optional<SoftwareEngineer> getSoftwareEngineerById(Integer id) {
-        return softwareEngineerRepository.findById(id);
+    public SoftwareEngineer getSoftwareEngineerById(Integer id) {
+        return softwareEngineerRepository
+            .findById(id)
+            .orElseThrow(() ->
+                new SoftwareEngineerNotFoundException(
+                    "Software Engineer with ID " + id + " is not found"
+                )
+            );
     }
 
     public void insertSoftwareEngineer(SoftwareEngineer softwareEngineer) {
@@ -28,7 +33,13 @@ public class SoftwareEngineerService {
     }
 
     public void updateSoftwareEngineer(Integer id, SoftwareEngineer updated) {
-        var existing = softwareEngineerRepository.findById(id).orElseThrow();
+        var existing = softwareEngineerRepository
+            .findById(id)
+            .orElseThrow(() ->
+                new SoftwareEngineerNotFoundException(
+                    "Software Engineer with ID " + id + " is not found"
+                )
+            );
 
         // will be used in a PUT method, so should be expected to have all fields
         existing.setName(updated.getName());
@@ -38,7 +49,13 @@ public class SoftwareEngineerService {
     }
 
     public void deleteSoftwareEngineer(Integer id) {
-        softwareEngineerRepository.findById(id).orElseThrow();
+        softwareEngineerRepository
+            .findById(id)
+            .orElseThrow(() ->
+                new SoftwareEngineerNotFoundException(
+                    "Software Engineer with ID " + id + " is not found"
+                )
+            );
         softwareEngineerRepository.deleteById(id);
     }
 }

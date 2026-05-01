@@ -29,9 +29,7 @@ public class SoftwareEngineerController {
 
     @GetMapping("{id}")
     public SoftwareEngineer getById(@PathVariable Integer id) {
-        return softwareEngineerService
-            .getSoftwareEngineerById(id)
-            .orElseThrow();
+        return softwareEngineerService.getSoftwareEngineerById(id);
     }
 
     @PostMapping
