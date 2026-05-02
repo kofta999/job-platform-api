@@ -31,7 +31,7 @@ public class SoftwareEngineerService {
 
         if (years != null) {
             spec = spec.and(
-                SoftwareEngineerSpecification.hasYearsGreaterThan(years)
+                SoftwareEngineerSpecification.hasYearsGreaterThanOrEqual(years)
             );
         }
 
@@ -69,13 +69,11 @@ public class SoftwareEngineerService {
     }
 
     public void deleteSoftwareEngineer(Integer id) {
-        softwareEngineerRepository
-            .findById(id)
-            .orElseThrow(() ->
-                new SoftwareEngineerNotFoundException(
-                    "Software Engineer with ID " + id + " is not found"
-                )
+        if (!softwareEngineerRepository.existsById(id)) {
+            throw new SoftwareEngineerNotFoundException(
+                "Software Engineer with ID " + id + " is not found"
             );
+        }
         softwareEngineerRepository.deleteById(id);
     }
 }

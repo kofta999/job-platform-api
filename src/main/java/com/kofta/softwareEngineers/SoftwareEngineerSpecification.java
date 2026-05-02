@@ -11,7 +11,7 @@ public class SoftwareEngineerSpecification {
             cb.like(root.get("techStack"), "%" + techStack + "%");
     }
 
-    public static Specification<SoftwareEngineer> hasYearsGreaterThan(
+    public static Specification<SoftwareEngineer> hasYearsGreaterThanOrEqual(
         Integer years
     ) {
         return (root, query, cb) -> cb.ge(root.get("yearsOfExperience"), years);
