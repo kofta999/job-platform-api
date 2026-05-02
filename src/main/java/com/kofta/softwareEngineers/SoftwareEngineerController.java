@@ -1,5 +1,6 @@
 package com.kofta.softwareEngineers;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,7 +44,7 @@ public class SoftwareEngineerController {
 
     @PostMapping
     public void addNew(
-        @RequestBody CreateSoftwareEngineerDTO softwareEngineer
+        @Valid @RequestBody CreateSoftwareEngineerDTO softwareEngineer
     ) {
         softwareEngineerService.insertSoftwareEngineer(
             mapper.fromCreateDto(softwareEngineer)
@@ -52,7 +53,7 @@ public class SoftwareEngineerController {
 
     @PutMapping("{id}")
     public void update(
-        @RequestBody CreateSoftwareEngineerDTO updated,
+        @Valid @RequestBody CreateSoftwareEngineerDTO updated,
         @PathVariable Integer id
     ) {
         softwareEngineerService.updateSoftwareEngineer(
