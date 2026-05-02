@@ -1,6 +1,7 @@
 package com.kofta.softwareEngineers;
 
-import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,8 +15,8 @@ public class SoftwareEngineerService {
         this.softwareEngineerRepository = softwareEngineerRepository;
     }
 
-    public List<SoftwareEngineer> getSoftwareEngineers() {
-        return softwareEngineerRepository.findAll();
+    public Slice<SoftwareEngineer> getSoftwareEngineers(Pageable pageable) {
+        return softwareEngineerRepository.findBy(pageable);
     }
 
     public SoftwareEngineer getSoftwareEngineerById(Integer id) {
