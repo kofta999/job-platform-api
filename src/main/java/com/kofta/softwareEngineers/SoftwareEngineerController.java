@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,10 +33,12 @@ public class SoftwareEngineerController {
 
     @GetMapping
     public Slice<SoftwareEngineerDTO> getAll(
-        @PageableDefault Pageable pageable
+        @PageableDefault Pageable pageable,
+        @RequestParam(required = false) String techStack,
+        @RequestParam(required = false) Integer yearsGreaterEqual
     ) {
         return softwareEngineerService
-            .getSoftwareEngineers(pageable)
+            .getSoftwareEngineers(yearsGreaterEqual, techStack, pageable)
             .map(mapper::toDto);
     }
 

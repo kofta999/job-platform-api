@@ -2,6 +2,7 @@ package com.kofta.softwareEngineers;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,8 +16,26 @@ public class SoftwareEngineerService {
         this.softwareEngineerRepository = softwareEngineerRepository;
     }
 
-    public Slice<SoftwareEngineer> getSoftwareEngineers(Pageable pageable) {
-        return softwareEngineerRepository.findBy(pageable);
+    public Slice<SoftwareEngineer> getSoftwareEngineers(
+        Integer years,
+        String techStack,
+        Pageable pageable
+    ) {
+        Specification<SoftwareEngineer> spec = Specification.unrestricted();
+
+        if (techStack != null) {
+            spec = spec.and(
+                SoftwareEngineerSpecification.hasTechStack(techStack)
+            );
+        }
+
+        if (years != null) {
+            spec = spec.and(
+                SoftwareEngineerSpecification.hasYearsGreaterThan(years)
+            );
+        }
+
+        return softwareEngineerRepository.findAll(spec, pageable);
     }
 
     public SoftwareEngineer getSoftwareEngineerById(Integer id) {

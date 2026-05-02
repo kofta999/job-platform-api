@@ -15,13 +15,28 @@ public class SoftwareEngineer {
 
     private String name;
     private String techStack;
+    private Integer yearsOfExperience;
+
+    public Integer getYearsOfExperience() {
+        return yearsOfExperience;
+    }
+
+    public void setYearsOfExperience(Integer yearsOfExperience) {
+        this.yearsOfExperience = yearsOfExperience;
+    }
 
     public SoftwareEngineer() {}
 
-    public SoftwareEngineer(Integer id, String name, String techStack) {
+    public SoftwareEngineer(
+        Integer id,
+        String name,
+        String techStack,
+        Integer yearsOfExperience
+    ) {
         this.id = id;
         this.name = name;
         this.techStack = techStack;
+        this.yearsOfExperience = yearsOfExperience;
     }
 
     public Integer getId() {
