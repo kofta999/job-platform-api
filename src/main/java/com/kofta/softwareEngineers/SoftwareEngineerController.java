@@ -1,5 +1,6 @@
 package com.kofta.softwareEngineers;
 
+import com.kofta.engineerProfiles.CreateEngineerProfileDTO;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -74,5 +75,28 @@ public class SoftwareEngineerController {
     @DeleteMapping("{id}")
     public void delete(@PathVariable Integer id) {
         softwareEngineerService.deleteSoftwareEngineer(id);
+    }
+
+    @PostMapping("{engineerId}/profile")
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public void addNewProfile(
+        @PathVariable Integer engineerId,
+        @Valid @RequestBody CreateEngineerProfileDTO newProfile
+    ) {
+        softwareEngineerService.insertEngineerProfile(
+            engineerId,
+            mapper.fromProfileDto(newProfile)
+        );
+    }
+
+    @PutMapping("{engineerId}/profile")
+    public void updateProfile(
+        @PathVariable Integer engineerId,
+        @Valid @RequestBody CreateEngineerProfileDTO newProfile
+    ) {
+        softwareEngineerService.updateEngineerProfile(
+            engineerId,
+            mapper.fromProfileDto(newProfile)
+        );
     }
 }

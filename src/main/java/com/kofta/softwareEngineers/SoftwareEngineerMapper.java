@@ -1,5 +1,7 @@
 package com.kofta.softwareEngineers;
 
+import com.kofta.engineerProfiles.CreateEngineerProfileDTO;
+import com.kofta.engineerProfiles.EngineerProfile;
 import com.kofta.skills.Skill;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -11,9 +13,14 @@ public interface SoftwareEngineerMapper {
     SoftwareEngineerDTO toDto(SoftwareEngineer entity);
 
     @Mapping(target = "skills", ignore = true)
-    SoftwareEngineer fromCreateDto(CreateSoftwareEngineerDTO entity);
+    @Mapping(target = "profile", ignore = true)
+    SoftwareEngineer fromCreateDto(CreateSoftwareEngineerDTO dto);
 
     SoftwareEngineerDTO.SkillDTO toSkillDto(Skill skill);
+
+    SoftwareEngineerDTO.ProfileDTO toProfileDto(EngineerProfile profile);
+
+    EngineerProfile fromProfileDto(CreateEngineerProfileDTO dto);
 
     default Set<SoftwareEngineerDTO.SkillDTO> mapSkills(Set<Skill> skills) {
         if (skills == null) return null;

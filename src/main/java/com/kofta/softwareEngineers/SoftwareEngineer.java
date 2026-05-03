@@ -36,7 +36,7 @@ public class SoftwareEngineer {
     @Column(name = "years_of_experience")
     private Integer yearsOfExperience;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "profile_id", referencedColumnName = "id")
     private EngineerProfile profile;
 

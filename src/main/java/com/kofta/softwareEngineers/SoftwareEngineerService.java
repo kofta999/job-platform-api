@@ -1,5 +1,7 @@
 package com.kofta.softwareEngineers;
 
+import com.kofta.engineerProfiles.EngineerProfile;
+import com.kofta.engineerProfiles.EngineerProfileRepository;
 import com.kofta.skills.SkillRepository;
 import java.util.Set;
 import org.springframework.data.domain.Pageable;
@@ -12,13 +14,16 @@ public class SoftwareEngineerService {
 
     private final SoftwareEngineerRepository softwareEngineerRepository;
     private final SkillRepository skillRepository;
+    private final EngineerProfileRepository engineerProfileRepository;
 
     public SoftwareEngineerService(
         SoftwareEngineerRepository softwareEngineerRepository,
-        SkillRepository skillRepository
+        SkillRepository skillRepository,
+        EngineerProfileRepository engineerProfileRepository
     ) {
         this.softwareEngineerRepository = softwareEngineerRepository;
         this.skillRepository = skillRepository;
+        this.engineerProfileRepository = engineerProfileRepository;
     }
 
     public Slice<SoftwareEngineer> getSoftwareEngineers(
@@ -86,5 +91,55 @@ public class SoftwareEngineerService {
             );
         }
         softwareEngineerRepository.deleteById(id);
+    }
+
+    public void insertEngineerProfile(
+        Integer engineerId,
+        EngineerProfile profile
+    ) {
+        var engineer = softwareEngineerRepository
+            .findById(engineerId)
+            .orElseThrow(() ->
+                new SoftwareEngineerNotFoundException(
+                    "Software Engineer with ID " + engineerId + " is not found"
+                )
+            );
+
+        engineer.setProfile(profile);
+        engineerProfileRepository.save(profile);
+        softwareEngineerRepository.save(engineer);
+    }
+
+    public void updateEngineerProfile(
+        Integer engineerId,
+        EngineerProfile updated
+    ) {
+        var engineer = softwareEngineerRepository
+            .findById(engineerId)
+            .orElseThrow(() ->
+                new SoftwareEngineerNotFoundException(
+                    "Software Engineer with ID " + engineerId + " is not found"
+                )
+            );
+
+        var profile = engineer.getProfile();
+
+        if (updated.getBio() != null) {
+            profile.setBio(updated.getBio());
+        }
+
+        if (updated.getGithubUrl() != null) {
+            profile.setGithubUrl(updated.getGithubUrl());
+        }
+
+        if (updated.getLinkedinUrl() != null) {
+            profile.setLinkedinUrl(updated.getLinkedinUrl());
+        }
+
+        if (updated.getLocation() != null) {
+            profile.setLocation(updated.getLocation());
+        }
+
+        engineerProfileRepository.save(profile);
     }
 }
