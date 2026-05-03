@@ -1,7 +1,8 @@
 package com.kofta;
 
+import com.kofta.errors.ApiError;
 import com.kofta.softwareEngineers.SoftwareEngineerNotFoundException;
-import java.time.LocalDateTime;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -9,48 +10,61 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(SoftwareEngineerNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleSoftwareEngineerNotFound(
-        SoftwareEngineerNotFoundException ex
+    public ResponseEntity<ApiError> handleSoftwareEngineerNotFound(
+        SoftwareEngineerNotFoundException ex,
+        HttpServletRequest request
     ) {
-        var error = new ErrorResponse(
+        var error = ApiError.of(
             HttpStatus.NOT_FOUND,
             ex.getMessage(),
-            LocalDateTime.now()
+            request.getRequestURI(),
+            null
         );
 
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleValidationExceptions(
-        MethodArgumentNotValidException ex
+    public ResponseEntity<ApiError> handleValidationExceptions(
+        MethodArgumentNotValidException ex,
+        HttpServletRequest request
     ) {
-        Map<String, String> errors = new HashMap<>();
+        Map<String, String> fieldErrors = new HashMap<>();
         ex
             .getBindingResult()
             .getAllErrors()
             .forEach(error -> {
                 String fieldName = ((FieldError) error).getField();
                 String errorMessage = error.getDefaultMessage();
-                errors.put(fieldName, errorMessage);
+                fieldErrors.put(fieldName, errorMessage);
             });
-        return errors;
+
+        var error = ApiError.of(
+            HttpStatus.BAD_REQUEST,
+            "Validation failed",
+            request.getRequestURI(),
+            fieldErrors
+        );
+
+        return new ResponseEntity<ApiError>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
-    public ResponseEntity<ErrorResponse> catchAll(RuntimeException ex) {
-        var error = new ErrorResponse(
+    public ResponseEntity<ApiError> catchAll(
+        RuntimeException ex,
+        HttpServletRequest request
+    ) {
+        var error = ApiError.of(
             HttpStatus.INTERNAL_SERVER_ERROR,
-            ex.getMessage(),
-            LocalDateTime.now()
+            "Something went wrong",
+            request.getRequestURI(),
+            null
         );
 
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);

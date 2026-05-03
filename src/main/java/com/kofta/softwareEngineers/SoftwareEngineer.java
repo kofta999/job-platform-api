@@ -36,7 +36,7 @@ public class SoftwareEngineer {
     @Column(name = "years_of_experience")
     private Integer yearsOfExperience;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "profile_id", referencedColumnName = "id")
     private EngineerProfile profile;
 
@@ -54,7 +54,6 @@ public class SoftwareEngineer {
 
     public void addSkill(Skill skill) {
         this.skills.add(skill);
-        skill.getEngineers().add(this);
     }
 
     public EngineerProfile getProfile() {
@@ -101,15 +100,11 @@ public class SoftwareEngineer {
     public boolean equals(Object o) {
         if (o != null && getClass() != o.getClass()) return false;
         var that = (SoftwareEngineer) o;
-        return (
-            Objects.equals(id, that.id) &&
-            Objects.equals(name, that.name) &&
-            Objects.equals(skills, that.skills)
-        );
+        return (Objects.equals(id, that.id) && Objects.equals(name, that.name));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, skills);
+        return Objects.hash(id, name);
     }
 }

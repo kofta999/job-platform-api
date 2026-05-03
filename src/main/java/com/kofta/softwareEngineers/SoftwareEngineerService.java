@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class SoftwareEngineerService {
@@ -56,7 +57,7 @@ public class SoftwareEngineerService {
             );
     }
 
-    public void insertSoftwareEngineer(
+    public SoftwareEngineer insertSoftwareEngineer(
         SoftwareEngineer softwareEngineer,
         Set<Integer> skillIds
     ) {
@@ -64,10 +65,13 @@ public class SoftwareEngineerService {
 
         skills.forEach(softwareEngineer::addSkill);
 
-        softwareEngineerRepository.save(softwareEngineer);
+        return softwareEngineerRepository.save(softwareEngineer);
     }
 
-    public void updateSoftwareEngineer(Integer id, SoftwareEngineer updated) {
+    public SoftwareEngineer updateSoftwareEngineer(
+        Integer id,
+        SoftwareEngineer updated
+    ) {
         var existing = softwareEngineerRepository
             .findById(id)
             .orElseThrow(() ->
@@ -76,23 +80,25 @@ public class SoftwareEngineerService {
                 )
             );
 
-        // will be used in a PUT method, so should be expected to have all fields
-        // TODO: Add rest
-        existing.setName(updated.getName());
-        existing.setYearsOfExperience(updated.getYearsOfExperience());
+        if (updated.getName() != null) {
+            existing.setName(updated.getName());
+        }
 
-        softwareEngineerRepository.save(existing);
+        if (updated.getYearsOfExperience() != null) {
+            existing.setYearsOfExperience(updated.getYearsOfExperience());
+        }
+        if (updated.getSkills() != null) {
+            existing.setSkills(updated.getSkills());
+        }
+
+        return softwareEngineerRepository.save(existing);
     }
 
     public void deleteSoftwareEngineer(Integer id) {
-        if (!softwareEngineerRepository.existsById(id)) {
-            throw new SoftwareEngineerNotFoundException(
-                "Software Engineer with ID " + id + " is not found"
-            );
-        }
         softwareEngineerRepository.deleteById(id);
     }
 
+    @Transactional
     public void insertEngineerProfile(
         Integer engineerId,
         EngineerProfile profile
@@ -110,6 +116,7 @@ public class SoftwareEngineerService {
         softwareEngineerRepository.save(engineer);
     }
 
+    @Transactional
     public void updateEngineerProfile(
         Integer engineerId,
         EngineerProfile updated

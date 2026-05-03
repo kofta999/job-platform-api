@@ -1,21 +1,13 @@
 package com.kofta.softwareEngineers;
 
+import com.kofta.engineerProfiles.EngineerProfileDTO;
+import com.kofta.skills.SkillDTO;
 import java.util.Set;
 
 public record SoftwareEngineerDTO(
     Integer id,
     String name,
     Set<SkillDTO> skills,
-    ProfileDTO profile,
+    EngineerProfileDTO profile,
     Integer yearsOfExperience
-) {
-    record SkillDTO(Integer id, String name) {}
-
-    record ProfileDTO(
-        Integer id,
-        String bio,
-        String githubUrl,
-        String linkedinUrl,
-        String location
-    ) {}
-}
+) {}
