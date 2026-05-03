@@ -1,5 +1,7 @@
 package com.kofta.softwareEngineers;
 
+import com.kofta.skills.SkillRepository;
+import java.util.Set;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.domain.Specification;
@@ -9,24 +11,25 @@ import org.springframework.stereotype.Service;
 public class SoftwareEngineerService {
 
     private final SoftwareEngineerRepository softwareEngineerRepository;
+    private final SkillRepository skillRepository;
 
     public SoftwareEngineerService(
-        SoftwareEngineerRepository softwareEngineerRepository
+        SoftwareEngineerRepository softwareEngineerRepository,
+        SkillRepository skillRepository
     ) {
         this.softwareEngineerRepository = softwareEngineerRepository;
+        this.skillRepository = skillRepository;
     }
 
     public Slice<SoftwareEngineer> getSoftwareEngineers(
         Integer years,
-        String techStack,
+        String skill,
         Pageable pageable
     ) {
         Specification<SoftwareEngineer> spec = Specification.unrestricted();
 
-        if (techStack != null) {
-            spec = spec.and(
-                SoftwareEngineerSpecification.hasTechStack(techStack)
-            );
+        if (skill != null) {
+            spec = spec.and(SoftwareEngineerSpecification.hasSkill(skill));
         }
 
         if (years != null) {
@@ -48,7 +51,14 @@ public class SoftwareEngineerService {
             );
     }
 
-    public void insertSoftwareEngineer(SoftwareEngineer softwareEngineer) {
+    public void insertSoftwareEngineer(
+        SoftwareEngineer softwareEngineer,
+        Set<Integer> skillIds
+    ) {
+        var skills = skillRepository.findAllById(skillIds);
+
+        skills.forEach(softwareEngineer::addSkill);
+
         softwareEngineerRepository.save(softwareEngineer);
     }
 
@@ -62,8 +72,9 @@ public class SoftwareEngineerService {
             );
 
         // will be used in a PUT method, so should be expected to have all fields
+        // TODO: Add rest
         existing.setName(updated.getName());
-        existing.setTechStack(updated.getTechStack());
+        existing.setYearsOfExperience(updated.getYearsOfExperience());
 
         softwareEngineerRepository.save(existing);
     }

@@ -1,8 +1,12 @@
 package com.kofta.softwareEngineers;
 
+import java.util.Set;
+
 public record SoftwareEngineerDTO(
     Integer id,
     String name,
-    String techStack,
+    Set<SkillDTO> skills,
     Integer yearsOfExperience
-) {}
+) {
+    record SkillDTO(Integer id, String name) {}
+}

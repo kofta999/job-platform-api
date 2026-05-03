@@ -34,11 +34,11 @@ public class SoftwareEngineerController {
     @GetMapping
     public Slice<SoftwareEngineerDTO> getAll(
         @PageableDefault Pageable pageable,
-        @RequestParam(required = false) String techStack,
+        @RequestParam(required = false) String skill,
         @RequestParam(required = false) Integer yearsGreaterEqual
     ) {
         return softwareEngineerService
-            .getSoftwareEngineers(yearsGreaterEqual, techStack, pageable)
+            .getSoftwareEngineers(yearsGreaterEqual, skill, pageable)
             .map(mapper::toDto);
     }
 
@@ -55,7 +55,8 @@ public class SoftwareEngineerController {
         @Valid @RequestBody CreateSoftwareEngineerDTO softwareEngineer
     ) {
         softwareEngineerService.insertSoftwareEngineer(
-            mapper.fromCreateDto(softwareEngineer)
+            mapper.fromCreateDto(softwareEngineer),
+            softwareEngineer.skillIds()
         );
     }
 
