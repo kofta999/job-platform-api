@@ -45,8 +45,8 @@ public class SoftwareEngineerController {
     }
 
     @GetMapping("{id}")
-    public SoftwareEngineerDTO getById(@PathVariable Integer id) {
-        return mapper.toDto(
+    public SoftwareEngineerWithProfileDTO getById(@PathVariable Integer id) {
+        return mapper.toWithProfileDto(
             softwareEngineerService.getSoftwareEngineerById(id)
         );
     }

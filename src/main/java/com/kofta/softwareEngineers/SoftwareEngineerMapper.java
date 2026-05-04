@@ -14,6 +14,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface SoftwareEngineerMapper {
     SoftwareEngineerDTO toDto(SoftwareEngineer entity);
+    SoftwareEngineerWithProfileDTO toWithProfileDto(SoftwareEngineer entity);
 
     @Mapping(target = "skills", ignore = true)
     @Mapping(target = "profile", ignore = true)
