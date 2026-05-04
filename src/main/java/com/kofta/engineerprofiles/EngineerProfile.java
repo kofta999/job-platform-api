@@ -1,4 +1,4 @@
-package com.kofta.engineerProfiles;
+package com.kofta.engineerprofiles;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

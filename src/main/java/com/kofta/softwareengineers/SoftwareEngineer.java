@@ -1,6 +1,6 @@
-package com.kofta.softwareEngineers;
+package com.kofta.softwareengineers;
 
-import com.kofta.engineerProfiles.EngineerProfile;
+import com.kofta.engineerprofiles.EngineerProfile;
 import com.kofta.skills.Skill;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

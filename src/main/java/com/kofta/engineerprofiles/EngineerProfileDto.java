@@ -1,6 +1,6 @@
-package com.kofta.engineerProfiles;
+package com.kofta.engineerprofiles;
 
-public record EngineerProfileDTO(
+public record EngineerProfileDto(
     Integer id,
     String bio,
     String githubUrl,

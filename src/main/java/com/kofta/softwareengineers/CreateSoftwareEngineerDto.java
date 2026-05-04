@@ -1,4 +1,4 @@
-package com.kofta.softwareEngineers;
+package com.kofta.softwareengineers;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import java.util.Set;
 
-public record CreateSoftwareEngineerDTO(
+public record CreateSoftwareEngineerDto(
     @NotBlank(message = "Name is mandatory") String name,
     @NotNull
     @PositiveOrZero(

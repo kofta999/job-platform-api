@@ -1,11 +1,11 @@
 package com.kofta;
 
-import com.kofta.engineerProfiles.EngineerProfile;
-import com.kofta.engineerProfiles.EngineerProfileRepository;
+import com.kofta.engineerprofiles.EngineerProfile;
+import com.kofta.engineerprofiles.EngineerProfileRepository;
 import com.kofta.skills.Skill;
 import com.kofta.skills.SkillRepository;
-import com.kofta.softwareEngineers.SoftwareEngineer;
-import com.kofta.softwareEngineers.SoftwareEngineerRepository;
+import com.kofta.softwareengineers.SoftwareEngineer;
+import com.kofta.softwareengineers.SoftwareEngineerRepository;
 import java.util.List;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;

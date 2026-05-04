@@ -1,7 +1,7 @@
-package com.kofta.softwareEngineers;
+package com.kofta.softwareengineers;
 
-import com.kofta.engineerProfiles.EngineerProfile;
-import com.kofta.engineerProfiles.EngineerProfileRepository;
+import com.kofta.engineerprofiles.EngineerProfile;
+import com.kofta.engineerprofiles.EngineerProfileRepository;
 import com.kofta.skills.SkillRepository;
 import java.util.Set;
 import org.springframework.data.domain.Pageable;

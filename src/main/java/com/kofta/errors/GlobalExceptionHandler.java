@@ -1,6 +1,6 @@
 package com.kofta.errors;
 
-import com.kofta.softwareEngineers.SoftwareEngineerNotFoundException;
+import com.kofta.softwareengineers.SoftwareEngineerNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
