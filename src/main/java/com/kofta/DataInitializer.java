@@ -1,5 +1,9 @@
 package com.kofta;
 
+import com.kofta.companies.Company;
+import com.kofta.companies.CompanyRepository;
+import com.kofta.companies.jobpostings.JobPosting;
+import com.kofta.companies.jobpostings.JobPostingRepository;
 import com.kofta.engineerprofiles.EngineerProfile;
 import com.kofta.engineerprofiles.EngineerProfileRepository;
 import com.kofta.skills.Skill;
@@ -8,24 +12,32 @@ import com.kofta.softwareengineers.SoftwareEngineer;
 import com.kofta.softwareengineers.SoftwareEngineerRepository;
 import java.util.List;
 import org.springframework.boot.CommandLineRunner;
+// import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
+// @Profile("dev")
 public class DataInitializer implements CommandLineRunner {
 
     private final SkillRepository skillRepository;
     private final SoftwareEngineerRepository softwareEngineerRepository;
     private final EngineerProfileRepository engineerProfileRepository;
+    private final CompanyRepository companyRepository;
+    private final JobPostingRepository jobPostingRepository;
 
     public DataInitializer(
         SkillRepository skillRepository,
         SoftwareEngineerRepository softwareEngineerRepository,
-        EngineerProfileRepository engineerProfileRepository
+        EngineerProfileRepository engineerProfileRepository,
+        CompanyRepository companyRepository,
+        JobPostingRepository jobPostingRepository
     ) {
         this.skillRepository = skillRepository;
         this.softwareEngineerRepository = softwareEngineerRepository;
         this.engineerProfileRepository = engineerProfileRepository;
+        this.companyRepository = companyRepository;
+        this.jobPostingRepository = jobPostingRepository;
     }
 
     @Override
@@ -33,7 +45,9 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) {
         if (
             skillRepository.count() > 0 ||
-            softwareEngineerRepository.count() > 0
+            softwareEngineerRepository.count() > 0 ||
+            companyRepository.count() > 0 ||
+            jobPostingRepository.count() > 0
         ) {
             return;
         }
@@ -66,5 +80,26 @@ public class DataInitializer implements CommandLineRunner {
         bob.addSkill(postgres);
 
         softwareEngineerRepository.saveAll(List.of(alice, bob));
+
+        var acme = new Company();
+        acme.setName("Acme Corp");
+        acme.setHqLocation("NYC");
+        companyRepository.save(acme);
+
+        var backendPosting = new JobPosting();
+        backendPosting.setTitle("Backend Engineer");
+        backendPosting.setDescription("Build and maintain REST APIs.");
+        backendPosting.setSalary(120000);
+        backendPosting.setCompany(acme);
+
+        var platformPosting = new JobPosting();
+        platformPosting.setTitle("Platform Engineer");
+        platformPosting.setDescription(
+            "Own infrastructure and deployment pipelines."
+        );
+        platformPosting.setSalary(140000);
+        platformPosting.setCompany(acme);
+
+        jobPostingRepository.saveAll(List.of(backendPosting, platformPosting));
     }
 }
