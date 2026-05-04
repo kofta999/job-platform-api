@@ -98,7 +98,6 @@ public class SoftwareEngineerService {
         softwareEngineerRepository.deleteById(id);
     }
 
-    @Transactional
     public void insertEngineerProfile(
         Integer engineerId,
         EngineerProfile profile
@@ -112,7 +111,6 @@ public class SoftwareEngineerService {
             );
 
         engineer.setProfile(profile);
-        engineerProfileRepository.save(profile);
         softwareEngineerRepository.save(engineer);
     }
 

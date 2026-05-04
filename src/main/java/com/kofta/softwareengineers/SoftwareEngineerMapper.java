@@ -13,6 +13,8 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface SoftwareEngineerMapper {
+    // Software Engineer
+
     SoftwareEngineerDto toDto(SoftwareEngineer entity);
     SoftwareEngineerWithProfileDto toWithProfileDto(SoftwareEngineer entity);
 
@@ -24,10 +26,12 @@ public interface SoftwareEngineerMapper {
     @Mapping(target = "profile", ignore = true)
     SoftwareEngineer fromUpdateDto(UpdateSoftwareEngineerDto dto);
 
+    // Skills
+
     SkillDto toSkillDto(Skill skill);
 
+    // Profile
     EngineerProfileDto toProfileDto(EngineerProfile profile);
-
     EngineerProfile fromProfileDto(CreateEngineerProfileDto dto);
     EngineerProfile fromUpdateProfileDto(UpdateEngineerProfileDto dto);
 
