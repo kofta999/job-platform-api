@@ -1,10 +1,20 @@
 package com.kofta.softwareEngineers;
 
+import com.kofta.engineerProfiles.EngineerProfile;
+import com.kofta.skills.Skill;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToOne;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 public class SoftwareEngineer {
@@ -14,28 +24,51 @@ public class SoftwareEngineer {
     private Integer id;
 
     private String name;
-    private String techStack;
+
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @JoinTable(
+        name = "engineer_skills",
+        joinColumns = @JoinColumn(name = "engineer_id"),
+        inverseJoinColumns = @JoinColumn(name = "skill_id")
+    )
+    private Set<Skill> skills = new HashSet<>();
+
+    @Column(name = "years_of_experience")
     private Integer yearsOfExperience;
 
-    public Integer getYearsOfExperience() {
-        return yearsOfExperience;
-    }
-
-    public void setYearsOfExperience(Integer yearsOfExperience) {
-        this.yearsOfExperience = yearsOfExperience;
-    }
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "profile_id", referencedColumnName = "id")
+    private EngineerProfile profile;
 
     public SoftwareEngineer() {}
 
     public SoftwareEngineer(
         Integer id,
         String name,
-        String techStack,
         Integer yearsOfExperience
     ) {
         this.id = id;
         this.name = name;
-        this.techStack = techStack;
+        this.yearsOfExperience = yearsOfExperience;
+    }
+
+    public void addSkill(Skill skill) {
+        this.skills.add(skill);
+    }
+
+    public EngineerProfile getProfile() {
+        return profile;
+    }
+
+    public void setProfile(EngineerProfile profile) {
+        this.profile = profile;
+    }
+
+    public Integer getYearsOfExperience() {
+        return yearsOfExperience;
+    }
+
+    public void setYearsOfExperience(Integer yearsOfExperience) {
         this.yearsOfExperience = yearsOfExperience;
     }
 
@@ -55,27 +88,23 @@ public class SoftwareEngineer {
         this.name = name;
     }
 
-    public String getTechStack() {
-        return techStack;
+    public Set<Skill> getSkills() {
+        return skills;
     }
 
-    public void setTechStack(String techStack) {
-        this.techStack = techStack;
+    public void setSkills(Set<Skill> skills) {
+        this.skills = skills;
     }
 
     @Override
     public boolean equals(Object o) {
         if (o != null && getClass() != o.getClass()) return false;
         var that = (SoftwareEngineer) o;
-        return (
-            Objects.equals(id, that.id) &&
-            Objects.equals(name, that.name) &&
-            Objects.equals(techStack, that.techStack)
-        );
+        return (Objects.equals(id, that.id) && Objects.equals(name, that.name));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, techStack);
+        return Objects.hash(id, name);
     }
 }

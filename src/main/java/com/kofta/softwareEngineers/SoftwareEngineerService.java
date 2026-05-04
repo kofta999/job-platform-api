@@ -1,32 +1,41 @@
 package com.kofta.softwareEngineers;
 
+import com.kofta.engineerProfiles.EngineerProfile;
+import com.kofta.engineerProfiles.EngineerProfileRepository;
+import com.kofta.skills.SkillRepository;
+import java.util.Set;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class SoftwareEngineerService {
 
     private final SoftwareEngineerRepository softwareEngineerRepository;
+    private final SkillRepository skillRepository;
+    private final EngineerProfileRepository engineerProfileRepository;
 
     public SoftwareEngineerService(
-        SoftwareEngineerRepository softwareEngineerRepository
+        SoftwareEngineerRepository softwareEngineerRepository,
+        SkillRepository skillRepository,
+        EngineerProfileRepository engineerProfileRepository
     ) {
         this.softwareEngineerRepository = softwareEngineerRepository;
+        this.skillRepository = skillRepository;
+        this.engineerProfileRepository = engineerProfileRepository;
     }
 
     public Slice<SoftwareEngineer> getSoftwareEngineers(
         Integer years,
-        String techStack,
+        String skill,
         Pageable pageable
     ) {
         Specification<SoftwareEngineer> spec = Specification.unrestricted();
 
-        if (techStack != null) {
-            spec = spec.and(
-                SoftwareEngineerSpecification.hasTechStack(techStack)
-            );
+        if (skill != null) {
+            spec = spec.and(SoftwareEngineerSpecification.hasSkill(skill));
         }
 
         if (years != null) {
@@ -48,11 +57,21 @@ public class SoftwareEngineerService {
             );
     }
 
-    public void insertSoftwareEngineer(SoftwareEngineer softwareEngineer) {
-        softwareEngineerRepository.save(softwareEngineer);
+    public SoftwareEngineer insertSoftwareEngineer(
+        SoftwareEngineer softwareEngineer,
+        Set<Integer> skillIds
+    ) {
+        var skills = skillRepository.findAllById(skillIds);
+
+        skills.forEach(softwareEngineer::addSkill);
+
+        return softwareEngineerRepository.save(softwareEngineer);
     }
 
-    public void updateSoftwareEngineer(Integer id, SoftwareEngineer updated) {
+    public SoftwareEngineer updateSoftwareEngineer(
+        Integer id,
+        SoftwareEngineer updated
+    ) {
         var existing = softwareEngineerRepository
             .findById(id)
             .orElseThrow(() ->
@@ -61,19 +80,73 @@ public class SoftwareEngineerService {
                 )
             );
 
-        // will be used in a PUT method, so should be expected to have all fields
-        existing.setName(updated.getName());
-        existing.setTechStack(updated.getTechStack());
+        if (updated.getName() != null) {
+            existing.setName(updated.getName());
+        }
 
-        softwareEngineerRepository.save(existing);
+        if (updated.getYearsOfExperience() != null) {
+            existing.setYearsOfExperience(updated.getYearsOfExperience());
+        }
+        if (updated.getSkills() != null) {
+            existing.setSkills(updated.getSkills());
+        }
+
+        return softwareEngineerRepository.save(existing);
     }
 
     public void deleteSoftwareEngineer(Integer id) {
-        if (!softwareEngineerRepository.existsById(id)) {
-            throw new SoftwareEngineerNotFoundException(
-                "Software Engineer with ID " + id + " is not found"
-            );
-        }
         softwareEngineerRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void insertEngineerProfile(
+        Integer engineerId,
+        EngineerProfile profile
+    ) {
+        var engineer = softwareEngineerRepository
+            .findById(engineerId)
+            .orElseThrow(() ->
+                new SoftwareEngineerNotFoundException(
+                    "Software Engineer with ID " + engineerId + " is not found"
+                )
+            );
+
+        engineer.setProfile(profile);
+        engineerProfileRepository.save(profile);
+        softwareEngineerRepository.save(engineer);
+    }
+
+    @Transactional
+    public void updateEngineerProfile(
+        Integer engineerId,
+        EngineerProfile updated
+    ) {
+        var engineer = softwareEngineerRepository
+            .findById(engineerId)
+            .orElseThrow(() ->
+                new SoftwareEngineerNotFoundException(
+                    "Software Engineer with ID " + engineerId + " is not found"
+                )
+            );
+
+        var profile = engineer.getProfile();
+
+        if (updated.getBio() != null) {
+            profile.setBio(updated.getBio());
+        }
+
+        if (updated.getGithubUrl() != null) {
+            profile.setGithubUrl(updated.getGithubUrl());
+        }
+
+        if (updated.getLinkedinUrl() != null) {
+            profile.setLinkedinUrl(updated.getLinkedinUrl());
+        }
+
+        if (updated.getLocation() != null) {
+            profile.setLocation(updated.getLocation());
+        }
+
+        engineerProfileRepository.save(profile);
     }
 }
