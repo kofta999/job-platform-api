@@ -2,12 +2,14 @@ package com.kofta.companies;
 
 import com.kofta.companies.jobpostings.JobPosting;
 import com.kofta.companies.jobpostings.JobPostingRepository;
+import com.kofta.companies.jobpostings.JobPostingSpecification;
 import com.kofta.errors.ResourceNotFoundException;
 import com.kofta.skills.SkillRepository;
 import java.util.HashSet;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,14 +65,34 @@ public class CompanyService {
     // Job Postings
 
     @Transactional(readOnly = true)
-    public List<JobPosting> getCompanyJobPostings(Integer companyId) {
-        var company = companyRepository
-            .findById(companyId)
-            .orElseThrow(() ->
-                new ResourceNotFoundException(Company.class, companyId)
-            );
+    public Slice<JobPosting> getCompanyJobPostings(
+        Integer companyId,
+        String skill,
+        Integer minSalary,
+        Integer maxSalary,
+        Pageable pageable
+    ) {
+        if (!companyRepository.existsById(companyId)) {
+            throw new ResourceNotFoundException(Company.class, companyId);
+        }
 
-        return List.copyOf(company.getJobPostings());
+        Specification<JobPosting> spec = Specification.unrestricted();
+
+        if (skill != null) spec = spec.and(
+            JobPostingSpecification.hasSkill(skill)
+        );
+
+        if (minSalary != null) spec = spec.and(
+            JobPostingSpecification.hasSalaryMoreThan(minSalary)
+        );
+
+        if (maxSalary != null) spec = spec.and(
+            JobPostingSpecification.hasSalaryLessThan(maxSalary)
+        );
+
+        spec = spec.and(JobPostingSpecification.belongsToCompany(companyId));
+
+        return jobPostingRepository.findAll(spec, pageable);
     }
 
     @Transactional

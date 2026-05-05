@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -65,12 +66,16 @@ public class CompanyController {
     }
 
     @GetMapping("{id}/job-postings")
-    public List<JobPostingItemDto> getPostings(@PathVariable Integer id) {
+    public Slice<JobPostingItemDto> getPostings(
+        @PathVariable Integer id,
+        @PageableDefault Pageable pageable,
+        @RequestParam(required = false) String skill,
+        @RequestParam(required = false) Integer minSalary,
+        @RequestParam(required = false) Integer maxSalary
+    ) {
         return companyService
-            .getCompanyJobPostings(id)
-            .stream()
-            .map(mapper::toItemDto)
-            .toList();
+            .getCompanyJobPostings(id, skill, minSalary, maxSalary, pageable)
+            .map(mapper::toItemDto);
     }
 
     @PostMapping("{id}/job-postings")
