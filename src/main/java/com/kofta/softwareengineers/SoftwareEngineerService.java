@@ -2,6 +2,7 @@ package com.kofta.softwareengineers;
 
 import com.kofta.engineerprofiles.EngineerProfile;
 import com.kofta.engineerprofiles.EngineerProfileRepository;
+import com.kofta.errors.ResourceNotFoundException;
 import com.kofta.skills.SkillRepository;
 import java.util.Set;
 import org.springframework.data.domain.Pageable;
@@ -51,9 +52,7 @@ public class SoftwareEngineerService {
         return softwareEngineerRepository
             .findById(id)
             .orElseThrow(() ->
-                new SoftwareEngineerNotFoundException(
-                    "Software Engineer with ID " + id + " is not found"
-                )
+                new ResourceNotFoundException(SoftwareEngineer.class, id)
             );
     }
 
@@ -75,9 +74,7 @@ public class SoftwareEngineerService {
         var existing = softwareEngineerRepository
             .findById(id)
             .orElseThrow(() ->
-                new SoftwareEngineerNotFoundException(
-                    "Software Engineer with ID " + id + " is not found"
-                )
+                new ResourceNotFoundException(SoftwareEngineer.class, id)
             );
 
         if (updated.getName() != null) {
@@ -105,8 +102,9 @@ public class SoftwareEngineerService {
         var engineer = softwareEngineerRepository
             .findById(engineerId)
             .orElseThrow(() ->
-                new SoftwareEngineerNotFoundException(
-                    "Software Engineer with ID " + engineerId + " is not found"
+                new ResourceNotFoundException(
+                    SoftwareEngineer.class,
+                    engineerId
                 )
             );
 
@@ -122,8 +120,9 @@ public class SoftwareEngineerService {
         var engineer = softwareEngineerRepository
             .findById(engineerId)
             .orElseThrow(() ->
-                new SoftwareEngineerNotFoundException(
-                    "Software Engineer with ID " + engineerId + " is not found"
+                new ResourceNotFoundException(
+                    SoftwareEngineer.class,
+                    engineerId
                 )
             );
 

@@ -1,6 +1,5 @@
 package com.kofta.errors;
 
-import com.kofta.softwareengineers.SoftwareEngineerNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,9 +13,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(SoftwareEngineerNotFoundException.class)
+    @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiError> handleSoftwareEngineerNotFound(
-        SoftwareEngineerNotFoundException ex,
+        ResourceNotFoundException ex,
         HttpServletRequest request
     ) {
         var error = ApiError.of(
@@ -61,7 +60,8 @@ public class GlobalExceptionHandler {
     ) {
         var error = ApiError.of(
             HttpStatus.INTERNAL_SERVER_ERROR,
-            "Something went wrong",
+            // TODO: Replace with "Something went wrong" after testing
+            ex.getMessage(),
             request.getRequestURI(),
             null
         );
