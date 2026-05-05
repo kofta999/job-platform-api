@@ -2,6 +2,7 @@ package com.kofta.companies;
 
 import com.kofta.companies.jobpostings.JobPosting;
 import com.kofta.companies.jobpostings.JobPostingRepository;
+import com.kofta.errors.ResourceNotFoundException;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -33,8 +34,11 @@ public class CompanyService {
     }
 
     public Company updateCompany(Integer companyId, Company updated) {
-        // TODO: Add proper error type
-        var existing = companyRepository.findById(companyId).orElseThrow();
+        var existing = companyRepository
+            .findById(companyId)
+            .orElseThrow(() ->
+                new ResourceNotFoundException(Company.class, companyId)
+            );
 
         if (updated.getName() != null) {
             existing.setName(updated.getName());
@@ -55,13 +59,21 @@ public class CompanyService {
 
     @Transactional(readOnly = true)
     public List<JobPosting> getCompanyJobPostings(Integer companyId) {
-        var company = companyRepository.findById(companyId).orElseThrow();
+        var company = companyRepository
+            .findById(companyId)
+            .orElseThrow(() ->
+                new ResourceNotFoundException(Company.class, companyId)
+            );
 
         return List.copyOf(company.getJobPostings());
     }
 
     public JobPosting insertJobPosting(Integer companyId, JobPosting posting) {
-        var company = companyRepository.findById(companyId).orElseThrow();
+        var company = companyRepository
+            .findById(companyId)
+            .orElseThrow(() ->
+                new ResourceNotFoundException(Company.class, companyId)
+            );
 
         posting.setCompany(company);
 
@@ -72,7 +84,11 @@ public class CompanyService {
         Integer companyId,
         Integer postingId
     ) {
-        var posting = jobPostingRepository.findById(postingId).orElseThrow();
+        var posting = jobPostingRepository
+            .findWithSkillsById(postingId)
+            .orElseThrow(() ->
+                new ResourceNotFoundException(JobPosting.class, postingId)
+            );
 
         if (
             posting.getCompany() == null ||
@@ -103,6 +119,10 @@ public class CompanyService {
 
         if (updated.getSalary() != null) {
             posting.setSalary(updated.getSalary());
+        }
+
+        if (updated.getSkills() != null) {
+            posting.setSkills(updated.getSkills());
         }
 
         return jobPostingRepository.save(posting);

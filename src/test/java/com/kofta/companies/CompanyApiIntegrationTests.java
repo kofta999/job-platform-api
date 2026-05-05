@@ -45,7 +45,7 @@ class CompanyApiIntegrationTests {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(companyJson)
             )
-            .andExpect(status().isOk())
+            .andExpect(status().isCreated())
             .andExpect(jsonPath("$.id").isNumber())
             .andReturn();
 
@@ -71,7 +71,7 @@ class CompanyApiIntegrationTests {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(postingJson)
             )
-            .andExpect(status().isOk())
+            .andExpect(status().isCreated())
             .andExpect(jsonPath("$.title").value("Backend Engineer"))
             .andReturn();
 
@@ -128,5 +128,44 @@ class CompanyApiIntegrationTests {
         Assertions.assertThat(
             jobPostingRepository.findById(postingId)
         ).isEmpty();
+    }
+
+    @Test
+    void returnsNotFoundForMissingCompanyJobPostings() throws Exception {
+        mockMvc
+            .perform(get("/companies/{id}/job-postings", 999))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void returnsNotFoundForMissingJobPosting() throws Exception {
+        var companyJson = objectMapper.writeValueAsString(
+            Map.of("name", "MissingPostingsCo", "hqLocation", "LA")
+        );
+
+        var companyResult = mockMvc
+            .perform(
+                post("/companies")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(companyJson)
+            )
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").isNumber())
+            .andReturn();
+
+        var companyId = objectMapper
+            .readTree(companyResult.getResponse().getContentAsString())
+            .get("id")
+            .asInt();
+
+        mockMvc
+            .perform(
+                get(
+                    "/companies/{companyId}/job-postings/{postingId}",
+                    companyId,
+                    9999
+                )
+            )
+            .andExpect(status().isNotFound());
     }
 }

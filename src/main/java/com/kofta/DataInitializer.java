@@ -11,6 +11,7 @@ import com.kofta.skills.SkillRepository;
 import com.kofta.softwareengineers.SoftwareEngineer;
 import com.kofta.softwareengineers.SoftwareEngineerRepository;
 import java.util.List;
+import java.util.Set;
 import org.springframework.boot.CommandLineRunner;
 // import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -91,6 +92,7 @@ public class DataInitializer implements CommandLineRunner {
         backendPosting.setDescription("Build and maintain REST APIs.");
         backendPosting.setSalary(120000);
         backendPosting.setCompany(acme);
+        backendPosting.setSkills(Set.of(java, spring, postgres));
 
         var platformPosting = new JobPosting();
         platformPosting.setTitle("Platform Engineer");
@@ -99,6 +101,7 @@ public class DataInitializer implements CommandLineRunner {
         );
         platformPosting.setSalary(140000);
         platformPosting.setCompany(acme);
+        platformPosting.setSkills(Set.of(postgres));
 
         jobPostingRepository.saveAll(List.of(backendPosting, platformPosting));
     }
