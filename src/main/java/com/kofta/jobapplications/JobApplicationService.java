@@ -74,7 +74,7 @@ public class JobApplicationService {
                 )
             );
 
-        if (application.getApplicant().getId() != engineerId) {
+        if (!application.getApplicant().getId().equals(engineerId)) {
             throw new ResourceNotFoundException(
                 JobApplication.class,
                 applicationId

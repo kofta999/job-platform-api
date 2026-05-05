@@ -1,11 +1,10 @@
 package com.kofta.companies.jobpostings;
 
-import com.kofta.skills.Skill;
-import java.util.Set;
+import java.util.List;
 
 public record UpdateJobPostingDto(
     String title,
     String description,
     Integer salary,
-    Set<Skill> skills
+    List<Integer> skillIds
 ) {}

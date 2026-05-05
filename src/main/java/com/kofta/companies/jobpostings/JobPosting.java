@@ -28,6 +28,7 @@ public class JobPosting {
     private Integer salary;
 
     @ManyToOne
+    @JoinColumn(name = "company_id")
     private Company company;
 
     @ManyToMany

@@ -80,7 +80,11 @@ public class CompanyController {
         @RequestBody CreateJobPostingDto posting
     ) {
         return mapper.toDetailsDto(
-            companyService.insertJobPosting(id, mapper.fromCreateDto(posting))
+            companyService.insertJobPosting(
+                id,
+                mapper.fromCreateDto(posting),
+                posting.skillIds()
+            )
         );
     }
 
@@ -104,7 +108,8 @@ public class CompanyController {
             companyService.updateJobPosting(
                 companyId,
                 postingId,
-                mapper.fromUpdateDto(posting)
+                mapper.fromUpdateDto(posting),
+                posting.skillIds()
             )
         );
     }

@@ -6,6 +6,7 @@ import com.kofta.companies.jobpostings.JobPostingDetailsDto;
 import com.kofta.companies.jobpostings.JobPostingItemDto;
 import com.kofta.companies.jobpostings.UpdateJobPostingDto;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface CompanyMapper {
@@ -17,6 +18,10 @@ public interface CompanyMapper {
     // Postings
     JobPostingItemDto toItemDto(JobPosting source);
     JobPostingDetailsDto toDetailsDto(JobPosting source);
+
+    @Mapping(target = "skills", ignore = true)
     JobPosting fromCreateDto(CreateJobPostingDto source);
+
+    @Mapping(target = "skills", ignore = true)
     JobPosting fromUpdateDto(UpdateJobPostingDto source);
 }
