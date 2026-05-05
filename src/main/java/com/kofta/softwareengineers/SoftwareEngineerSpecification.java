@@ -1,4 +1,4 @@
-package com.kofta.softwareEngineers;
+package com.kofta.softwareengineers;
 
 import com.kofta.skills.Skill;
 import jakarta.persistence.criteria.Join;

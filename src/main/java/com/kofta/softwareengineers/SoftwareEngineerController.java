@@ -1,7 +1,7 @@
-package com.kofta.softwareEngineers;
+package com.kofta.softwareengineers;
 
-import com.kofta.engineerProfiles.CreateEngineerProfileDTO;
-import com.kofta.engineerProfiles.UpdateEngineerProfileDTO;
+import com.kofta.engineerprofiles.CreateEngineerProfileDto;
+import com.kofta.engineerprofiles.UpdateEngineerProfileDto;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -34,7 +34,7 @@ public class SoftwareEngineerController {
     }
 
     @GetMapping
-    public Slice<SoftwareEngineerDTO> getAll(
+    public Slice<SoftwareEngineerDto> getAll(
         @PageableDefault Pageable pageable,
         @RequestParam(required = false) String skill,
         @RequestParam(required = false) Integer yearsGreaterEqual
@@ -45,7 +45,7 @@ public class SoftwareEngineerController {
     }
 
     @GetMapping("{id}")
-    public SoftwareEngineerWithProfileDTO getById(@PathVariable Integer id) {
+    public SoftwareEngineerWithProfileDto getById(@PathVariable Integer id) {
         return mapper.toWithProfileDto(
             softwareEngineerService.getSoftwareEngineerById(id)
         );
@@ -53,8 +53,8 @@ public class SoftwareEngineerController {
 
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
-    public SoftwareEngineerDTO addNew(
-        @Valid @RequestBody CreateSoftwareEngineerDTO softwareEngineer
+    public SoftwareEngineerDto addNew(
+        @Valid @RequestBody CreateSoftwareEngineerDto softwareEngineer
     ) {
         var eng = softwareEngineerService.insertSoftwareEngineer(
             mapper.fromCreateDto(softwareEngineer),
@@ -65,8 +65,8 @@ public class SoftwareEngineerController {
     }
 
     @PatchMapping("{id}")
-    public SoftwareEngineerDTO update(
-        @Valid @RequestBody UpdateSoftwareEngineerDTO updated,
+    public SoftwareEngineerDto update(
+        @Valid @RequestBody UpdateSoftwareEngineerDto updated,
         @PathVariable Integer id
     ) {
         var eng = softwareEngineerService.updateSoftwareEngineer(
@@ -87,7 +87,7 @@ public class SoftwareEngineerController {
     @ResponseStatus(code = HttpStatus.CREATED)
     public void addNewProfile(
         @PathVariable Integer engineerId,
-        @Valid @RequestBody CreateEngineerProfileDTO newProfile
+        @Valid @RequestBody CreateEngineerProfileDto newProfile
     ) {
         softwareEngineerService.insertEngineerProfile(
             engineerId,
@@ -98,7 +98,7 @@ public class SoftwareEngineerController {
     @PatchMapping("{engineerId}/profile")
     public void updateProfile(
         @PathVariable Integer engineerId,
-        @Valid @RequestBody UpdateEngineerProfileDTO newProfile
+        @Valid @RequestBody UpdateEngineerProfileDto newProfile
     ) {
         softwareEngineerService.updateEngineerProfile(
             engineerId,

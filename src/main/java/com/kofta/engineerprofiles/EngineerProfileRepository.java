@@ -1,4 +1,4 @@
-package com.kofta.engineerProfiles;
+package com.kofta.engineerprofiles;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

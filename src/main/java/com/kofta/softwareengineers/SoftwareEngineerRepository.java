@@ -1,4 +1,4 @@
-package com.kofta.softwareEngineers;
+package com.kofta.softwareengineers;
 
 import java.util.Optional;
 import org.springframework.data.domain.Page;
