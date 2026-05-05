@@ -56,6 +56,7 @@ public class SoftwareEngineerService {
             );
     }
 
+    @Transactional
     public SoftwareEngineer insertSoftwareEngineer(
         SoftwareEngineer softwareEngineer,
         Set<Integer> skillIds
