@@ -1,5 +1,6 @@
 package com.kofta.softwareengineers;
 
+import com.kofta.auth.User;
 import com.kofta.engineerprofiles.EngineerProfile;
 import com.kofta.jobapplications.JobApplication;
 import com.kofta.skills.Skill;
@@ -18,8 +19,12 @@ import jakarta.persistence.OneToOne;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Setter
+@Getter
 public class SoftwareEngineer {
 
     @Id
@@ -53,6 +58,10 @@ public class SoftwareEngineer {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "applicant")
     private Set<JobApplication> applications = new HashSet<>();
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", unique = true, nullable = false)
+    private User user;
+
     public SoftwareEngineer() {}
 
     public SoftwareEngineer(
@@ -69,46 +78,6 @@ public class SoftwareEngineer {
         this.skills.add(skill);
     }
 
-    public EngineerProfile getProfile() {
-        return profile;
-    }
-
-    public void setProfile(EngineerProfile profile) {
-        this.profile = profile;
-    }
-
-    public Integer getYearsOfExperience() {
-        return yearsOfExperience;
-    }
-
-    public void setYearsOfExperience(Integer yearsOfExperience) {
-        this.yearsOfExperience = yearsOfExperience;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Set<Skill> getSkills() {
-        return skills;
-    }
-
-    public void setSkills(Set<Skill> skills) {
-        this.skills = skills;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (o != null && getClass() != o.getClass()) return false;
@@ -119,13 +88,5 @@ public class SoftwareEngineer {
     @Override
     public int hashCode() {
         return Objects.hash(id, name);
-    }
-
-    public Set<JobApplication> getApplications() {
-        return applications;
-    }
-
-    public void setApplications(Set<JobApplication> applications) {
-        this.applications = applications;
     }
 }

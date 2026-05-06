@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -59,19 +60,7 @@ public class SoftwareEngineerController {
         );
     }
 
-    @PostMapping
-    @ResponseStatus(code = HttpStatus.CREATED)
-    public SoftwareEngineerDto addNew(
-        @Valid @RequestBody CreateSoftwareEngineerDto softwareEngineer
-    ) {
-        var eng = softwareEngineerService.insertSoftwareEngineer(
-            mapper.fromCreateDto(softwareEngineer),
-            softwareEngineer.skillIds()
-        );
-
-        return mapper.toDto(eng);
-    }
-
+    @PreAuthorize("@sec.isSelfEngineer(#id)")
     @PatchMapping("{id}")
     public SoftwareEngineerDto update(
         @Valid @RequestBody UpdateSoftwareEngineerDto updated,
@@ -85,12 +74,14 @@ public class SoftwareEngineerController {
         return mapper.toDto(eng);
     }
 
+    @PreAuthorize("@sec.isSelfEngineer(#id)")
     @DeleteMapping("{id}")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Integer id) {
         softwareEngineerService.deleteSoftwareEngineer(id);
     }
 
+    @PreAuthorize("@sec.isSelfEngineer(#engineerId)")
     @PostMapping("{engineerId}/profile")
     @ResponseStatus(code = HttpStatus.CREATED)
     public void addNewProfile(
@@ -103,6 +94,7 @@ public class SoftwareEngineerController {
         );
     }
 
+    @PreAuthorize("@sec.isSelfEngineer(#engineerId)")
     @PatchMapping("{engineerId}/profile")
     public void updateProfile(
         @PathVariable Integer engineerId,
@@ -114,6 +106,7 @@ public class SoftwareEngineerController {
         );
     }
 
+    @PreAuthorize("@sec.isSelfEngineer(#engineerId)")
     @PostMapping("{engineerId}/applications")
     @ResponseStatus(code = HttpStatus.CREATED)
     public JobApplicationDto submitApplication(
@@ -128,6 +121,7 @@ public class SoftwareEngineerController {
         );
     }
 
+    @PreAuthorize("@sec.isSelfEngineer(#engineerId)")
     @GetMapping("{engineerId}/applications")
     public List<JobApplicationDto> getApplications(
         @PathVariable Integer engineerId
@@ -139,6 +133,7 @@ public class SoftwareEngineerController {
             .toList();
     }
 
+    @PreAuthorize("@sec.isSelfEngineer(#engineerId)")
     @GetMapping("{engineerId}/applications/{applicationId}")
     public JobApplicationDetailsDto getApplication(
         @PathVariable Integer engineerId,
