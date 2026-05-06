@@ -1,8 +1,10 @@
 package com.kofta.companies.jobpostings;
 
 import com.kofta.companies.Company;
+import com.kofta.jobapplications.JobApplication;
 import com.kofta.skills.Skill;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -10,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,6 +28,7 @@ public class JobPosting {
     private Integer salary;
 
     @ManyToOne
+    @JoinColumn(name = "company_id")
     private Company company;
 
     @ManyToMany
@@ -34,6 +38,9 @@ public class JobPosting {
         inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
     private Set<Skill> skills = new HashSet<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "posting")
+    private Set<JobApplication> applications = new HashSet<>();
 
     public Integer getId() {
         return id;

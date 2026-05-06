@@ -2,7 +2,12 @@ package com.kofta.softwareengineers;
 
 import com.kofta.engineerprofiles.CreateEngineerProfileDto;
 import com.kofta.engineerprofiles.UpdateEngineerProfileDto;
+import com.kofta.jobapplications.CreateJobApplicationDto;
+import com.kofta.jobapplications.JobApplicationDetailsDto;
+import com.kofta.jobapplications.JobApplicationDto;
+import com.kofta.jobapplications.JobApplicationService;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
@@ -23,14 +28,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class SoftwareEngineerController {
 
     private final SoftwareEngineerService softwareEngineerService;
+    private final JobApplicationService jobApplicationService;
     private final SoftwareEngineerMapper mapper;
 
     public SoftwareEngineerController(
         SoftwareEngineerService softwareEngineerService,
-        SoftwareEngineerMapper softwareEngineerMapper
+        SoftwareEngineerMapper softwareEngineerMapper,
+        JobApplicationService jobApplicationService
     ) {
         this.softwareEngineerService = softwareEngineerService;
         this.mapper = softwareEngineerMapper;
+        this.jobApplicationService = jobApplicationService;
     }
 
     @GetMapping
@@ -91,7 +99,7 @@ public class SoftwareEngineerController {
     ) {
         softwareEngineerService.insertEngineerProfile(
             engineerId,
-            mapper.fromProfileDto(newProfile)
+            mapper.fromCreateDto(newProfile)
         );
     }
 
@@ -102,7 +110,45 @@ public class SoftwareEngineerController {
     ) {
         softwareEngineerService.updateEngineerProfile(
             engineerId,
-            mapper.fromUpdateProfileDto(newProfile)
+            mapper.fromUpdateDto(newProfile)
+        );
+    }
+
+    @PostMapping("{engineerId}/applications")
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public JobApplicationDto submitApplication(
+        @PathVariable Integer engineerId,
+        @RequestBody @Valid CreateJobApplicationDto application
+    ) {
+        return mapper.toDto(
+            jobApplicationService.submitApplication(
+                engineerId,
+                application.postingId()
+            )
+        );
+    }
+
+    @GetMapping("{engineerId}/applications")
+    public List<JobApplicationDto> getApplications(
+        @PathVariable Integer engineerId
+    ) {
+        return jobApplicationService
+            .getApplicationsForEngineer(engineerId)
+            .stream()
+            .map(mapper::toDto)
+            .toList();
+    }
+
+    @GetMapping("{engineerId}/applications/{applicationId}")
+    public JobApplicationDetailsDto getApplication(
+        @PathVariable Integer engineerId,
+        @PathVariable Integer applicationId
+    ) {
+        return mapper.toDetailsDto(
+            jobApplicationService.getApplicationDetails(
+                engineerId,
+                applicationId
+            )
         );
     }
 }

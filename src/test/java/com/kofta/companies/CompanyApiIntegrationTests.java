@@ -9,6 +9,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kofta.companies.jobpostings.JobPostingRepository;
+import com.kofta.skills.Skill;
+import com.kofta.skills.SkillRepository;
+import java.util.List;
 import java.util.Map;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -33,6 +36,9 @@ class CompanyApiIntegrationTests {
     @Autowired
     private JobPostingRepository jobPostingRepository;
 
+    @Autowired
+    private SkillRepository skillRepository;
+
     @Test
     void manageCompanyJobPostingLifecycle() throws Exception {
         var companyJson = objectMapper.writeValueAsString(
@@ -54,14 +60,18 @@ class CompanyApiIntegrationTests {
             .get("id")
             .asInt();
 
+        var skillId = createSkill("Java");
+
         var postingJson = objectMapper.writeValueAsString(
             Map.of(
                 "title",
                 "Backend Engineer",
                 "description",
-                "Build APIs",
+                "Build and maintain backend APIs for clients.",
                 "salary",
-                120000
+                120000,
+                "skillIds",
+                List.of(skillId)
             )
         );
 
@@ -96,7 +106,7 @@ class CompanyApiIntegrationTests {
                 "title",
                 "Senior Backend Engineer",
                 "description",
-                "Build APIs and mentor juniors",
+                "Build APIs and mentor junior engineers across teams.",
                 "salary",
                 150000
             )
@@ -167,5 +177,11 @@ class CompanyApiIntegrationTests {
                 )
             )
             .andExpect(status().isNotFound());
+    }
+
+    private Integer createSkill(String name) {
+        var skill = new Skill();
+        skill.setName(name);
+        return skillRepository.save(skill).getId();
     }
 }

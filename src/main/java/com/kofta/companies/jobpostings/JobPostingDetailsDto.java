@@ -1,6 +1,6 @@
 package com.kofta.companies.jobpostings;
 
-import com.kofta.skills.Skill;
+import com.kofta.skills.SkillDto;
 import java.util.Set;
 
 public record JobPostingDetailsDto(
@@ -8,5 +8,5 @@ public record JobPostingDetailsDto(
     String title,
     String description,
     Integer salary,
-    Set<Skill> skills
+    Set<SkillDto> skills
 ) {}

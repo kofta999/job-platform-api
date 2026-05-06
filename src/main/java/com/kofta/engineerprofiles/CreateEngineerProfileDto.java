@@ -10,7 +10,10 @@ public record CreateEngineerProfileDto(
     @URL(host = "github.com", message = "Must be a github.com URL")
     String githubUrl,
     @NotBlank
-    @URL(host = "linkedin.com", message = "Must be a linkedin.com URL")
+    @URL(
+        regexp = "https:?//(www\\.)?linkedin\\.com/.*",
+        message = "Must be a linkedin.com URL"
+    )
     String linkedinUrl,
     @NotBlank String location
 ) {}

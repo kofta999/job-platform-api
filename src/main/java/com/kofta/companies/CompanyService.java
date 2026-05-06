@@ -2,10 +2,14 @@ package com.kofta.companies;
 
 import com.kofta.companies.jobpostings.JobPosting;
 import com.kofta.companies.jobpostings.JobPostingRepository;
+import com.kofta.companies.jobpostings.JobPostingSpecification;
 import com.kofta.errors.ResourceNotFoundException;
+import com.kofta.skills.SkillRepository;
+import java.util.HashSet;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,13 +18,16 @@ public class CompanyService {
 
     private CompanyRepository companyRepository;
     private JobPostingRepository jobPostingRepository;
+    private SkillRepository skillRepository;
 
     public CompanyService(
         CompanyRepository companyRepository,
-        JobPostingRepository jobPostingRepository
+        JobPostingRepository jobPostingRepository,
+        SkillRepository skillRepository
     ) {
         this.companyRepository = companyRepository;
         this.jobPostingRepository = jobPostingRepository;
+        this.skillRepository = skillRepository;
     }
 
     // Companies
@@ -58,23 +65,51 @@ public class CompanyService {
     // Job Postings
 
     @Transactional(readOnly = true)
-    public List<JobPosting> getCompanyJobPostings(Integer companyId) {
-        var company = companyRepository
-            .findById(companyId)
-            .orElseThrow(() ->
-                new ResourceNotFoundException(Company.class, companyId)
-            );
+    public Slice<JobPosting> getCompanyJobPostings(
+        Integer companyId,
+        String skill,
+        Integer minSalary,
+        Integer maxSalary,
+        Pageable pageable
+    ) {
+        if (!companyRepository.existsById(companyId)) {
+            throw new ResourceNotFoundException(Company.class, companyId);
+        }
 
-        return List.copyOf(company.getJobPostings());
+        Specification<JobPosting> spec = Specification.unrestricted();
+
+        if (skill != null) spec = spec.and(
+            JobPostingSpecification.hasSkill(skill)
+        );
+
+        if (minSalary != null) spec = spec.and(
+            JobPostingSpecification.hasSalaryMoreThan(minSalary)
+        );
+
+        if (maxSalary != null) spec = spec.and(
+            JobPostingSpecification.hasSalaryLessThan(maxSalary)
+        );
+
+        spec = spec.and(JobPostingSpecification.belongsToCompany(companyId));
+
+        return jobPostingRepository.findAll(spec, pageable);
     }
 
-    public JobPosting insertJobPosting(Integer companyId, JobPosting posting) {
+    @Transactional
+    public JobPosting insertJobPosting(
+        Integer companyId,
+        JobPosting posting,
+        List<Integer> skillIds
+    ) {
         var company = companyRepository
             .findById(companyId)
             .orElseThrow(() ->
                 new ResourceNotFoundException(Company.class, companyId)
             );
 
+        var skills = skillRepository.findAllById(skillIds);
+
+        posting.setSkills(new HashSet<>(skills));
         posting.setCompany(company);
 
         return jobPostingRepository.save(posting);
@@ -102,10 +137,12 @@ public class CompanyService {
         return posting;
     }
 
+    @Transactional
     public JobPosting updateJobPosting(
         Integer companyId,
         Integer postingId,
-        JobPosting updated
+        JobPosting updated,
+        List<Integer> skillIds
     ) {
         var posting = getCompanyJobPosting(companyId, postingId);
 
@@ -121,13 +158,15 @@ public class CompanyService {
             posting.setSalary(updated.getSalary());
         }
 
-        if (updated.getSkills() != null) {
-            posting.setSkills(updated.getSkills());
+        if (skillIds != null) {
+            var skills = skillRepository.findAllById(skillIds);
+            posting.setSkills(new HashSet<>(skills));
         }
 
         return jobPostingRepository.save(posting);
     }
 
+    @Transactional
     public void deleteJobPosting(Integer companyId, Integer postingId) {
         // To check if the company owning the posting exists or not
         var posting = getCompanyJobPosting(companyId, postingId);
