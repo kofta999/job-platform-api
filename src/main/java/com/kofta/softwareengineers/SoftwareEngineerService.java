@@ -5,6 +5,7 @@ import com.kofta.engineerprofiles.EngineerProfileRepository;
 import com.kofta.errors.ResourceNotFoundException;
 import com.kofta.skills.SkillRepository;
 import java.util.Set;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.domain.Specification;
@@ -12,21 +13,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class SoftwareEngineerService {
 
     private final SoftwareEngineerRepository softwareEngineerRepository;
     private final SkillRepository skillRepository;
     private final EngineerProfileRepository engineerProfileRepository;
-
-    public SoftwareEngineerService(
-        SoftwareEngineerRepository softwareEngineerRepository,
-        SkillRepository skillRepository,
-        EngineerProfileRepository engineerProfileRepository
-    ) {
-        this.softwareEngineerRepository = softwareEngineerRepository;
-        this.skillRepository = skillRepository;
-        this.engineerProfileRepository = engineerProfileRepository;
-    }
 
     public Slice<SoftwareEngineer> getSoftwareEngineers(
         Integer years,

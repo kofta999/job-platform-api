@@ -5,11 +5,11 @@ import com.kofta.companies.jobpostings.JobPostingDetailsDto;
 import com.kofta.companies.jobpostings.JobPostingItemDto;
 import com.kofta.companies.jobpostings.UpdateJobPostingDto;
 import jakarta.validation.Valid;
-import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -50,6 +50,8 @@ public class CompanyController {
     }
 
     // TODO: Add GET {id} when you've enough details for it being worth later
+
+    @PreAuthorize("@sec.belongsToCompany(#id)")
     @PatchMapping("{id}")
     public CompanyDto update(
         @PathVariable Integer id,
@@ -60,6 +62,7 @@ public class CompanyController {
         );
     }
 
+    @PreAuthorize("@sec.belongsToCompany(#id)")
     @DeleteMapping("{id}")
     public void delete(@PathVariable Integer id) {
         companyService.deleteCompany(id);
@@ -78,6 +81,7 @@ public class CompanyController {
             .map(mapper::toItemDto);
     }
 
+    @PreAuthorize("@sec.belongsToCompany(#id)")
     @PostMapping("{id}/job-postings")
     @ResponseStatus(code = HttpStatus.CREATED)
     public JobPostingDetailsDto createPosting(
@@ -103,6 +107,7 @@ public class CompanyController {
         );
     }
 
+    @PreAuthorize("@sec.belongsToCompany(#companyId)")
     @PatchMapping("{companyId}/job-postings/{postingId}")
     public JobPostingDetailsDto updatePosting(
         @PathVariable Integer companyId,
@@ -119,6 +124,7 @@ public class CompanyController {
         );
     }
 
+    @PreAuthorize("@sec.belongsToCompany(#companyId)")
     @DeleteMapping("{companyId}/job-postings/{postingId}")
     public void deletePosting(
         @PathVariable Integer companyId,

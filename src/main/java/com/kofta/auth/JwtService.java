@@ -19,20 +19,34 @@ public class JwtService {
     @Value("${auth.jwt.secret-key}")
     private String SECRET_KEY;
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(AuthUser user) {
         var now = Instant.now();
+
+        Integer engineerId = null;
+        Integer companyId = null;
+
+        if (user.role() == Role.ROLE_ENGINEER && user.engineerId() != null) {
+            engineerId = user.engineerId();
+        } else if (
+            user.role() == Role.ROLE_COMPANY && user.companyId() != null
+        ) {
+            companyId = user.companyId();
+        }
+
         return Jwts.builder()
-            .subject(userDetails.getUsername())
+            .subject(user.getUsername())
             .expiration(Date.from(now.plus(1, ChronoUnit.DAYS)))
             .issuedAt(Date.from(now))
             .claim(
                 "roles",
-                userDetails
+                user
                     .getAuthorities()
                     .stream()
                     .map(GrantedAuthority::getAuthority)
                     .toList()
             )
+            .claim("engineerId", engineerId)
+            .claim("companyId", companyId)
             .signWith(getSigningKey())
             .compact();
     }
@@ -43,6 +57,14 @@ public class JwtService {
 
     public String extractUsername(Claims claims) {
         return claims.getSubject();
+    }
+
+    public Integer extractEngineerId(Claims claims) {
+        return claims.get("engineerId", Integer.class);
+    }
+
+    public Integer extractCompanyId(Claims claims) {
+        return claims.get("companyId", Integer.class);
     }
 
     public boolean isTokenValid(final Claims claims, UserDetails userDetails) {

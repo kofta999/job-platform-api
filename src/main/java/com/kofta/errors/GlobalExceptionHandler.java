@@ -6,6 +6,8 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -67,6 +69,36 @@ public class GlobalExceptionHandler {
         );
 
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<ApiError> handleUserDisabledException(
+        DisabledException ex,
+        HttpServletRequest request
+    ) {
+        var error = ApiError.of(
+            HttpStatus.UNAUTHORIZED,
+            ex.getMessage(),
+            request.getRequestURI(),
+            null
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ApiError> handleAuthDeniedException(
+        AuthorizationDeniedException ex,
+        HttpServletRequest request
+    ) {
+        var error = ApiError.of(
+            HttpStatus.FORBIDDEN,
+            ex.getMessage(),
+            request.getRequestURI(),
+            null
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(ResourceAlreadyExists.class)
