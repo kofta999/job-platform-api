@@ -1,5 +1,6 @@
 package com.kofta.jobapplications;
 
+import com.kofta.common.BaseAuditableEntity;
 import com.kofta.companies.jobpostings.JobPosting;
 import com.kofta.softwareengineers.SoftwareEngineer;
 import jakarta.persistence.Column;
@@ -11,9 +12,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
-public class JobApplication {
+@Getter
+@Setter
+public class JobApplication extends BaseAuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,44 +36,4 @@ public class JobApplication {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "engineer_id")
     private SoftwareEngineer applicant;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public LocalDateTime getAppliedDate() {
-        return appliedDate;
-    }
-
-    public void setAppliedDate(LocalDateTime appliedDate) {
-        this.appliedDate = appliedDate;
-    }
-
-    public JobApplicationStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(JobApplicationStatus status) {
-        this.status = status;
-    }
-
-    public JobPosting getPosting() {
-        return posting;
-    }
-
-    public void setPosting(JobPosting posting) {
-        this.posting = posting;
-    }
-
-    public SoftwareEngineer getApplicant() {
-        return applicant;
-    }
-
-    public void setApplicant(SoftwareEngineer applicant) {
-        this.applicant = applicant;
-    }
 }

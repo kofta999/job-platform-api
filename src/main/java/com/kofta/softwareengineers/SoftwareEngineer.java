@@ -1,6 +1,7 @@
 package com.kofta.softwareengineers;
 
 import com.kofta.auth.User;
+import com.kofta.common.BaseAuditableEntity;
 import com.kofta.engineerprofiles.EngineerProfile;
 import com.kofta.jobapplications.JobApplication;
 import com.kofta.skills.Skill;
@@ -25,7 +26,7 @@ import lombok.Setter;
 @Entity
 @Setter
 @Getter
-public class SoftwareEngineer {
+public class SoftwareEngineer extends BaseAuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

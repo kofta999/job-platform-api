@@ -1,5 +1,6 @@
 package com.kofta.auth;
 
+import com.kofta.common.BaseAuditableEntity;
 import com.kofta.companies.Company;
 import com.kofta.softwareengineers.SoftwareEngineer;
 import jakarta.persistence.CascadeType;
@@ -22,7 +23,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(name = "users")
-public class User {
+public class User extends BaseAuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
