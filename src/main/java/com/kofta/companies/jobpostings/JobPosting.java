@@ -1,5 +1,6 @@
 package com.kofta.companies.jobpostings;
 
+import com.kofta.common.BaseAuditableEntity;
 import com.kofta.companies.Company;
 import com.kofta.jobapplications.JobApplication;
 import com.kofta.skills.Skill;
@@ -15,9 +16,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
-public class JobPosting {
+@Getter
+@Setter
+public class JobPosting extends BaseAuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,52 +46,4 @@ public class JobPosting {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "posting")
     private Set<JobApplication> applications = new HashSet<>();
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Integer getSalary() {
-        return salary;
-    }
-
-    public void setSalary(Integer salary) {
-        this.salary = salary;
-    }
-
-    public Company getCompany() {
-        return company;
-    }
-
-    public void setCompany(Company company) {
-        this.company = company;
-    }
-
-    public Set<Skill> getSkills() {
-        return skills;
-    }
-
-    public void setSkills(Set<Skill> skills) {
-        this.skills = skills;
-    }
 }
