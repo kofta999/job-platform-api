@@ -11,6 +11,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +20,15 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
+@Table(
+    name = "job_application",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "uc_engineer_posting",
+            columnNames = { "posting_id", "engineer_id" }
+        ),
+    }
+)
 public class JobApplication extends BaseAuditableEntity {
 
     @Id

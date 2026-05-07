@@ -2,6 +2,7 @@ package com.kofta.jobapplications;
 
 import com.kofta.companies.jobpostings.JobPosting;
 import com.kofta.companies.jobpostings.JobPostingRepository;
+import com.kofta.errors.ResourceAlreadyExists;
 import com.kofta.errors.ResourceNotFoundException;
 import com.kofta.softwareengineers.SoftwareEngineer;
 import com.kofta.softwareengineers.SoftwareEngineerRepository;
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +20,7 @@ public class JobApplicationService {
     private final SoftwareEngineerRepository softwareEngineerRepository;
     private final JobPostingRepository jobPostingRepository;
 
+    @Transactional
     public JobApplication submitApplication(
         Integer engineerId,
         Integer postingId
@@ -32,6 +35,15 @@ public class JobApplicationService {
 
         if (!jobPostingRepository.existsById(postingId)) {
             throw new ResourceNotFoundException(JobPosting.class, postingId);
+        }
+
+        if (
+            jobApplicationRepository.existsByApplicantIdAndPostingId(
+                engineerId,
+                postingId
+            )
+        ) {
+            throw new ResourceAlreadyExists(JobApplication.class);
         }
 
         var engineerRef = softwareEngineerRepository.getReferenceById(

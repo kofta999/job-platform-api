@@ -16,4 +16,9 @@ public interface JobApplicationRepository
         }
     )
     Optional<JobApplication> findWithDetailsById(Integer id);
+
+    boolean existsByApplicantIdAndPostingId(
+        Integer applicantId,
+        Integer postingId
+    );
 }
