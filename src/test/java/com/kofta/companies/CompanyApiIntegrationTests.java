@@ -1,5 +1,7 @@
 package com.kofta.companies;
 
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -8,16 +10,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kofta.TestSecurityConfig;
+import com.kofta.auth.SecurityValidator;
 import com.kofta.companies.jobpostings.JobPostingRepository;
 import com.kofta.skills.Skill;
 import com.kofta.skills.SkillRepository;
 import java.util.List;
 import java.util.Map;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,6 +32,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Import(TestSecurityConfig.class)
 class CompanyApiIntegrationTests {
 
     @Autowired
@@ -38,6 +46,14 @@ class CompanyApiIntegrationTests {
 
     @Autowired
     private SkillRepository skillRepository;
+
+    @MockBean
+    private SecurityValidator securityValidator;
+
+    @BeforeEach
+    void allowCompanyAccess() {
+        when(securityValidator.belongsToCompany(anyInt())).thenReturn(true);
+    }
 
     @Test
     void manageCompanyJobPostingLifecycle() throws Exception {

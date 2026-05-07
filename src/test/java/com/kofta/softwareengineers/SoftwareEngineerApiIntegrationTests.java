@@ -1,5 +1,7 @@
 package com.kofta.softwareengineers;
 
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -8,6 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kofta.TestSecurityConfig;
+import com.kofta.auth.SecurityValidator;
 import com.kofta.companies.Company;
 import com.kofta.companies.CompanyRepository;
 import com.kofta.companies.jobpostings.JobPosting;
@@ -16,10 +20,13 @@ import com.kofta.skills.Skill;
 import com.kofta.skills.SkillRepository;
 import java.util.Map;
 import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,6 +34,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Import(TestSecurityConfig.class)
 class SoftwareEngineerApiIntegrationTests {
 
     @Autowired
@@ -44,11 +52,23 @@ class SoftwareEngineerApiIntegrationTests {
     @Autowired
     private JobPostingRepository jobPostingRepository;
 
+    @Autowired
+    private SoftwareEngineerRepository softwareEngineerRepository;
+
+    @MockBean
+    private SecurityValidator securityValidator;
+
+    @BeforeEach
+    void allowEngineerAccess() {
+        when(securityValidator.isSelfEngineer(anyInt())).thenReturn(true);
+    }
+
     @Test
     void createUpdateProfileAndDeleteEngineer() throws Exception {
         var skillId = createSkill("Java");
 
         var engineerId = createEngineer(
+            "Mona",
             Map.of(
                 "name",
                 "Mona",
@@ -135,6 +155,7 @@ class SoftwareEngineerApiIntegrationTests {
     void submitAndFetchApplications() throws Exception {
         var skillId = createSkill("Go");
         var engineerId = createEngineer(
+            "Hassan",
             Map.of(
                 "name",
                 "Hassan",
@@ -206,6 +227,7 @@ class SoftwareEngineerApiIntegrationTests {
 
         var skillId = createSkill("Python");
         var engineerId = createEngineer(
+            "Laila",
             Map.of(
                 "name",
                 "Laila",
@@ -233,24 +255,36 @@ class SoftwareEngineerApiIntegrationTests {
         return skillRepository.save(skill).getId();
     }
 
-    private Integer createEngineer(Map<String, Object> payload)
-        throws Exception {
-        var engineerJson = objectMapper.writeValueAsString(payload);
-
-        var result = mockMvc
-            .perform(
-                post("/software-engineers")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(engineerJson)
+    private Integer createEngineer(
+        String name,
+        Map<String, Object> profilePayload
+    ) throws Exception {
+        var registerJson = objectMapper.writeValueAsString(
+            Map.of(
+                "email",
+                name.toLowerCase() + "@example.com",
+                "password",
+                "secret123",
+                "profile",
+                profilePayload
             )
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.id").isNumber())
-            .andReturn();
+        );
 
-        return objectMapper
-            .readTree(result.getResponse().getContentAsString())
-            .get("id")
-            .asInt();
+        mockMvc
+            .perform(
+                post("/auth/register/engineer")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(registerJson)
+            )
+            .andExpect(status().isCreated());
+
+        return softwareEngineerRepository
+            .findAll()
+            .stream()
+            .filter(eng -> name.equals(eng.getName()))
+            .findFirst()
+            .orElseThrow()
+            .getId();
     }
 
     private Integer createJobPosting(String title, Integer salary) {
