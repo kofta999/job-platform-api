@@ -5,6 +5,7 @@ import com.kofta.companies.jobpostings.JobPostingDetailsDto;
 import com.kofta.companies.jobpostings.JobPostingItemDto;
 import com.kofta.companies.jobpostings.UpdateJobPostingDto;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
@@ -23,18 +24,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("companies")
+@RequiredArgsConstructor
 public class CompanyController {
 
-    private CompanyService companyService;
-    private CompanyMapper mapper;
-
-    public CompanyController(
-        CompanyService companyService,
-        CompanyMapper mapper
-    ) {
-        this.companyService = companyService;
-        this.mapper = mapper;
-    }
+    private final CompanyService companyService;
+    private final CompanyMapper mapper;
 
     @GetMapping
     public Slice<CompanyDto> getAll(@PageableDefault Pageable pageable) {

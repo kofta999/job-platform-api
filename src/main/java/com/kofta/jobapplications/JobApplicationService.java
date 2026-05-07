@@ -7,24 +7,16 @@ import com.kofta.softwareengineers.SoftwareEngineer;
 import com.kofta.softwareengineers.SoftwareEngineerRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class JobApplicationService {
 
-    private JobApplicationRepository jobApplicationRepository;
-    private SoftwareEngineerRepository softwareEngineerRepository;
-    private JobPostingRepository jobPostingRepository;
-
-    public JobApplicationService(
-        JobApplicationRepository jobApplicationRepository,
-        SoftwareEngineerRepository softwareEngineerRepository,
-        JobPostingRepository jobPostingRepository
-    ) {
-        this.jobApplicationRepository = jobApplicationRepository;
-        this.softwareEngineerRepository = softwareEngineerRepository;
-        this.jobPostingRepository = jobPostingRepository;
-    }
+    private final JobApplicationRepository jobApplicationRepository;
+    private final SoftwareEngineerRepository softwareEngineerRepository;
+    private final JobPostingRepository jobPostingRepository;
 
     public JobApplication submitApplication(
         Integer engineerId,

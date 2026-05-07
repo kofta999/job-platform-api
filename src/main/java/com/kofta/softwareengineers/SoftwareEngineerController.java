@@ -8,6 +8,7 @@ import com.kofta.jobapplications.JobApplicationDto;
 import com.kofta.jobapplications.JobApplicationService;
 import jakarta.validation.Valid;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
@@ -26,21 +27,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("software-engineers")
+@RequiredArgsConstructor
 public class SoftwareEngineerController {
 
     private final SoftwareEngineerService softwareEngineerService;
     private final JobApplicationService jobApplicationService;
     private final SoftwareEngineerMapper mapper;
-
-    public SoftwareEngineerController(
-        SoftwareEngineerService softwareEngineerService,
-        SoftwareEngineerMapper softwareEngineerMapper,
-        JobApplicationService jobApplicationService
-    ) {
-        this.softwareEngineerService = softwareEngineerService;
-        this.mapper = softwareEngineerMapper;
-        this.jobApplicationService = jobApplicationService;
-    }
 
     @GetMapping
     public Slice<SoftwareEngineerDto> getAll(
