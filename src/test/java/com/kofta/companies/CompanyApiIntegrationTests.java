@@ -15,8 +15,10 @@ import com.kofta.auth.SecurityValidator;
 import com.kofta.companies.jobpostings.JobPostingRepository;
 import com.kofta.skills.Skill;
 import com.kofta.skills.SkillRepository;
+import com.kofta.softwareengineers.SoftwareEngineerRepository;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,12 +49,16 @@ class CompanyApiIntegrationTests {
     @Autowired
     private SkillRepository skillRepository;
 
+    @Autowired
+    private SoftwareEngineerRepository softwareEngineerRepository;
+
     @MockitoBean
     private SecurityValidator securityValidator;
 
     @BeforeEach
     void allowCompanyAccess() {
         when(securityValidator.belongsToCompany(anyInt())).thenReturn(true);
+        when(securityValidator.isSelfEngineer(anyInt())).thenReturn(true);
     }
 
     @Test
@@ -195,9 +201,194 @@ class CompanyApiIntegrationTests {
             .andExpect(status().isNotFound());
     }
 
+    @Test
+    void managePostingApplicationsAndStatus() throws Exception {
+        var companyJson = objectMapper.writeValueAsString(
+            Map.of("name", "ApplyCo", "hqLocation", "Giza")
+        );
+
+        var companyResult = mockMvc
+            .perform(
+                post("/companies")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(companyJson)
+            )
+            .andExpect(status().isCreated())
+            .andReturn();
+
+        var companyId = objectMapper
+            .readTree(companyResult.getResponse().getContentAsString())
+            .get("id")
+            .asInt();
+
+        var skillId = createSkill("Java");
+        var postingJson = objectMapper.writeValueAsString(
+            Map.of(
+                "title",
+                "Backend Engineer",
+                "description",
+                "Build and maintain backend APIs for clients.",
+                "salary",
+                120000,
+                "skillIds",
+                List.of(skillId)
+            )
+        );
+
+        var postingResult = mockMvc
+            .perform(
+                post("/companies/{id}/job-postings", companyId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(postingJson)
+            )
+            .andExpect(status().isCreated())
+            .andReturn();
+
+        var postingId = objectMapper
+            .readTree(postingResult.getResponse().getContentAsString())
+            .get("id")
+            .asInt();
+
+        var engineerId = registerEngineer(
+            "Nora",
+            Map.of(
+                "name",
+                "Nora",
+                "yearsOfExperience",
+                4,
+                "skillIds",
+                Set.of(skillId)
+            )
+        );
+
+        var applicationJson = objectMapper.writeValueAsString(
+            Map.of("postingId", postingId)
+        );
+
+        var applicationResult = mockMvc
+            .perform(
+                post("/software-engineers/{id}/applications", engineerId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(applicationJson)
+            )
+            .andExpect(status().isCreated())
+            .andReturn();
+
+        var applicationId = objectMapper
+            .readTree(applicationResult.getResponse().getContentAsString())
+            .get("id")
+            .asInt();
+
+        mockMvc
+            .perform(
+                get(
+                    "/companies/{companyId}/job-postings/{postingId}/applications",
+                    companyId,
+                    postingId
+                )
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].id").value(applicationId));
+
+        mockMvc
+            .perform(
+                get(
+                    "/companies/{companyId}/job-postings/{postingId}/applications/{applicationId}",
+                    companyId,
+                    postingId,
+                    applicationId
+                )
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.posting.id").value(postingId))
+            .andExpect(jsonPath("$.applicant.id").value(engineerId));
+
+        var inReviewJson = objectMapper.writeValueAsString(
+            Map.of("newStatus", "IN_REVIEW")
+        );
+
+        mockMvc
+            .perform(
+                patch(
+                    "/companies/{companyId}/applications/{applicationId}/status",
+                    companyId,
+                    applicationId
+                )
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(inReviewJson)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("IN_REVIEW"));
+
+        var acceptedJson = objectMapper.writeValueAsString(
+            Map.of("newStatus", "ACCEPTED")
+        );
+
+        mockMvc
+            .perform(
+                patch(
+                    "/companies/{companyId}/applications/{applicationId}/status",
+                    companyId,
+                    applicationId
+                )
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(acceptedJson)
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("ACCEPTED"));
+
+        var invalidJson = objectMapper.writeValueAsString(
+            Map.of("newStatus", "REJECTED")
+        );
+
+        mockMvc
+            .perform(
+                patch(
+                    "/companies/{companyId}/applications/{applicationId}/status",
+                    companyId,
+                    applicationId
+                )
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(invalidJson)
+            )
+            .andExpect(status().isUnprocessableEntity());
+    }
+
     private Integer createSkill(String name) {
         var skill = new Skill();
         skill.setName(name);
         return skillRepository.save(skill).getId();
+    }
+
+    private Integer registerEngineer(
+        String name,
+        Map<String, Object> profilePayload
+    ) throws Exception {
+        var registerJson = objectMapper.writeValueAsString(
+            Map.of(
+                "email",
+                name.toLowerCase() + "@example.com",
+                "password",
+                "secret123",
+                "profile",
+                profilePayload
+            )
+        );
+
+        mockMvc
+            .perform(
+                post("/auth/register/engineer")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(registerJson)
+            )
+            .andExpect(status().isCreated());
+
+        return softwareEngineerRepository
+            .findAll()
+            .stream()
+            .filter(eng -> name.equals(eng.getName()))
+            .findFirst()
+            .orElseThrow()
+            .getId();
     }
 }
