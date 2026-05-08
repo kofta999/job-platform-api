@@ -2,6 +2,8 @@ package com.kofta.auth;
 
 import com.kofta.companies.CompanyMapper;
 import com.kofta.softwareengineers.SoftwareEngineerMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("auth")
 @RequiredArgsConstructor
+@Tag(name = "Auth", description = "Authentication and registration")
 public class AuthController {
 
     private final JwtService jwtService;
@@ -25,6 +28,7 @@ public class AuthController {
     private final CompanyMapper companyMapper;
 
     @PostMapping("/login")
+    @Operation(summary = "Login", operationId = "authLogin")
     public String login(@RequestBody @Valid LoginDto credentials) {
         var auth = authManager.authenticate(
             new UsernamePasswordAuthenticationToken(
@@ -40,6 +44,7 @@ public class AuthController {
 
     @PostMapping("/register/engineer")
     @ResponseStatus(code = HttpStatus.CREATED)
+    @Operation(summary = "Register engineer", operationId = "registerEngineer")
     public void registerEngineer(
         @RequestBody @Valid RegisterEngineerDto credentials
     ) {
@@ -53,6 +58,7 @@ public class AuthController {
 
     @PostMapping("/register/company")
     @ResponseStatus(code = HttpStatus.CREATED)
+    @Operation(summary = "Register company", operationId = "registerCompany")
     public void registerCompany(
         @RequestBody @Valid RegisterCompanyDto credentials
     ) {

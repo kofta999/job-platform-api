@@ -9,6 +9,9 @@ import com.kofta.jobapplications.JobApplicationDto;
 import com.kofta.jobapplications.JobApplicationMapper;
 import com.kofta.jobapplications.JobApplicationService;
 import com.kofta.jobapplications.UpdateApplicationStatusDto;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +34,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("companies")
 @RequiredArgsConstructor
+@Tag(name = "Companies", description = "Company management and job postings")
+@SecurityRequirement(name = "bearerAuth")
 public class CompanyController {
 
     private final CompanyService companyService;
@@ -39,6 +44,7 @@ public class CompanyController {
     private final JobApplicationMapper jobApplicationMapper;
 
     @GetMapping
+    @Operation(summary = "List companies", operationId = "listCompanies")
     public Slice<CompanyDto> getAll(@PageableDefault Pageable pageable) {
         return companyService
             .getAllCompanies(pageable)
@@ -47,6 +53,7 @@ public class CompanyController {
 
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
+    @Operation(summary = "Create company", operationId = "createCompany")
     public CompanyDto create(@RequestBody @Valid CreateCompanyDto company) {
         return companyMapper.toDto(
             companyService.insertCompany(companyMapper.fromCreateDto(company))
@@ -57,6 +64,7 @@ public class CompanyController {
 
     @PreAuthorize("@sec.belongsToCompany(#id)")
     @PatchMapping("{id}")
+    @Operation(summary = "Update company", operationId = "updateCompany")
     public CompanyDto update(
         @PathVariable Integer id,
         @RequestBody @Valid UpdateCompanyDto company
@@ -71,11 +79,16 @@ public class CompanyController {
 
     @PreAuthorize("@sec.belongsToCompany(#id)")
     @DeleteMapping("{id}")
+    @Operation(summary = "Delete company", operationId = "deleteCompany")
     public void delete(@PathVariable Integer id) {
         companyService.deleteCompany(id);
     }
 
     @GetMapping("{id}/job-postings")
+    @Operation(
+        summary = "List job postings",
+        operationId = "listCompanyJobPostings"
+    )
     public Slice<JobPostingItemDto> getPostings(
         @PathVariable Integer id,
         @PageableDefault Pageable pageable,
@@ -91,6 +104,7 @@ public class CompanyController {
     @PreAuthorize("@sec.belongsToCompany(#id)")
     @PostMapping("{id}/job-postings")
     @ResponseStatus(code = HttpStatus.CREATED)
+    @Operation(summary = "Create job posting", operationId = "createJobPosting")
     public JobPostingDetailsDto createPosting(
         @PathVariable Integer id,
         @RequestBody CreateJobPostingDto posting
@@ -105,6 +119,7 @@ public class CompanyController {
     }
 
     @GetMapping("{companyId}/job-postings/{postingId}")
+    @Operation(summary = "Get job posting", operationId = "getJobPosting")
     public JobPostingDetailsDto getPosting(
         @PathVariable Integer companyId,
         @PathVariable Integer postingId
@@ -116,6 +131,7 @@ public class CompanyController {
 
     @PreAuthorize("@sec.belongsToCompany(#companyId)")
     @PatchMapping("{companyId}/job-postings/{postingId}")
+    @Operation(summary = "Update job posting", operationId = "updateJobPosting")
     public JobPostingDetailsDto updatePosting(
         @PathVariable Integer companyId,
         @PathVariable Integer postingId,
@@ -133,6 +149,7 @@ public class CompanyController {
 
     @PreAuthorize("@sec.belongsToCompany(#companyId)")
     @DeleteMapping("{companyId}/job-postings/{postingId}")
+    @Operation(summary = "Delete job posting", operationId = "deleteJobPosting")
     public void deletePosting(
         @PathVariable Integer companyId,
         @PathVariable Integer postingId
@@ -142,6 +159,10 @@ public class CompanyController {
 
     @PreAuthorize("@sec.belongsToCompany(#companyId)")
     @GetMapping("{companyId}/job-postings/{postingId}/applications")
+    @Operation(
+        summary = "List job applications",
+        operationId = "listJobApplications"
+    )
     public List<JobApplicationDto> getApplications(
         @PathVariable Integer companyId,
         @PathVariable Integer postingId
@@ -156,6 +177,10 @@ public class CompanyController {
     @PreAuthorize("@sec.belongsToCompany(#companyId)")
     @GetMapping(
         "{companyId}/job-postings/{postingId}/applications/{applicationId}"
+    )
+    @Operation(
+        summary = "Get job application details",
+        operationId = "getJobApplicationDetails"
     )
     public JobApplicationDetailsDto getApplicationDetails(
         @PathVariable Integer companyId,
@@ -172,6 +197,10 @@ public class CompanyController {
 
     @PreAuthorize("@sec.belongsToCompany(#companyId)")
     @PatchMapping("{companyId}/applications/{applicationId}/status")
+    @Operation(
+        summary = "Update application status",
+        operationId = "updateApplicationStatus"
+    )
     public JobApplicationDto updateStatus(
         @PathVariable Integer companyId,
         @PathVariable Integer applicationId,

@@ -7,6 +7,9 @@ import com.kofta.jobapplications.JobApplicationDetailsDto;
 import com.kofta.jobapplications.JobApplicationDto;
 import com.kofta.jobapplications.JobApplicationMapper;
 import com.kofta.jobapplications.JobApplicationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +32,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("software-engineers")
 @RequiredArgsConstructor
+@Tag(name = "Software Engineers", description = "Engineers and applications")
+@SecurityRequirement(name = "bearerAuth")
 public class SoftwareEngineerController {
 
     private final SoftwareEngineerService softwareEngineerService;
@@ -37,6 +42,7 @@ public class SoftwareEngineerController {
     private final JobApplicationMapper jobApplicationMapper;
 
     @GetMapping
+    @Operation(summary = "List engineers", operationId = "listEngineers")
     public Slice<SoftwareEngineerDto> getAll(
         @PageableDefault Pageable pageable,
         @RequestParam(required = false) String skill,
@@ -48,6 +54,7 @@ public class SoftwareEngineerController {
     }
 
     @GetMapping("{id}")
+    @Operation(summary = "Get engineer", operationId = "getEngineer")
     public SoftwareEngineerWithProfileDto getById(@PathVariable Integer id) {
         return engineerMapper.toWithProfileDto(
             softwareEngineerService.getSoftwareEngineerById(id)
@@ -56,6 +63,7 @@ public class SoftwareEngineerController {
 
     @PreAuthorize("@sec.isSelfEngineer(#id)")
     @PatchMapping("{id}")
+    @Operation(summary = "Update engineer", operationId = "updateEngineer")
     public SoftwareEngineerDto update(
         @Valid @RequestBody UpdateSoftwareEngineerDto updated,
         @PathVariable Integer id
@@ -71,6 +79,7 @@ public class SoftwareEngineerController {
     @PreAuthorize("@sec.isSelfEngineer(#id)")
     @DeleteMapping("{id}")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    @Operation(summary = "Delete engineer", operationId = "deleteEngineer")
     public void delete(@PathVariable Integer id) {
         softwareEngineerService.deleteSoftwareEngineer(id);
     }
@@ -78,6 +87,10 @@ public class SoftwareEngineerController {
     @PreAuthorize("@sec.isSelfEngineer(#engineerId)")
     @PostMapping("{engineerId}/profile")
     @ResponseStatus(code = HttpStatus.CREATED)
+    @Operation(
+        summary = "Create profile",
+        operationId = "createEngineerProfile"
+    )
     public void addNewProfile(
         @PathVariable Integer engineerId,
         @Valid @RequestBody CreateEngineerProfileDto newProfile
@@ -90,6 +103,10 @@ public class SoftwareEngineerController {
 
     @PreAuthorize("@sec.isSelfEngineer(#engineerId)")
     @PatchMapping("{engineerId}/profile")
+    @Operation(
+        summary = "Update profile",
+        operationId = "updateEngineerProfile"
+    )
     public void updateProfile(
         @PathVariable Integer engineerId,
         @Valid @RequestBody UpdateEngineerProfileDto newProfile
@@ -103,6 +120,10 @@ public class SoftwareEngineerController {
     @PreAuthorize("@sec.isSelfEngineer(#engineerId)")
     @PostMapping("{engineerId}/applications")
     @ResponseStatus(code = HttpStatus.CREATED)
+    @Operation(
+        summary = "Submit application",
+        operationId = "submitApplication"
+    )
     public JobApplicationDto submitApplication(
         @PathVariable Integer engineerId,
         @RequestBody @Valid CreateJobApplicationDto application
@@ -117,6 +138,10 @@ public class SoftwareEngineerController {
 
     @PreAuthorize("@sec.isSelfEngineer(#engineerId)")
     @GetMapping("{engineerId}/applications")
+    @Operation(
+        summary = "List applications",
+        operationId = "listEngineerApplications"
+    )
     public List<JobApplicationDto> getApplications(
         @PathVariable Integer engineerId
     ) {
@@ -129,6 +154,10 @@ public class SoftwareEngineerController {
 
     @PreAuthorize("@sec.isSelfEngineer(#engineerId)")
     @GetMapping("{engineerId}/applications/{applicationId}")
+    @Operation(
+        summary = "Get application details",
+        operationId = "getEngineerApplication"
+    )
     public JobApplicationDetailsDto getApplication(
         @PathVariable Integer engineerId,
         @PathVariable Integer applicationId
