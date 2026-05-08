@@ -7,6 +7,7 @@ import com.kofta.errors.ResourceNotFoundException;
 import com.kofta.skills.SkillRepository;
 import java.util.HashSet;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.domain.Specification;
@@ -14,21 +15,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class CompanyService {
 
-    private CompanyRepository companyRepository;
-    private JobPostingRepository jobPostingRepository;
-    private SkillRepository skillRepository;
-
-    public CompanyService(
-        CompanyRepository companyRepository,
-        JobPostingRepository jobPostingRepository,
-        SkillRepository skillRepository
-    ) {
-        this.companyRepository = companyRepository;
-        this.jobPostingRepository = jobPostingRepository;
-        this.skillRepository = skillRepository;
-    }
+    private final CompanyRepository companyRepository;
+    private final JobPostingRepository jobPostingRepository;
+    private final SkillRepository skillRepository;
 
     // Companies
 
