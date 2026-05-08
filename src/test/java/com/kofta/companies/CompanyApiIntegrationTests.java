@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -166,7 +167,8 @@ class CompanyApiIntegrationTests {
     void returnsNotFoundForMissingCompanyJobPostings() throws Exception {
         mockMvc
             .perform(get("/companies/{id}/job-postings", 999))
-            .andExpect(status().isNotFound());
+            .andExpect(status().isNotFound())
+            .andExpect(content().contentType("application/problem+json"));
     }
 
     @Test
@@ -198,7 +200,8 @@ class CompanyApiIntegrationTests {
                     9999
                 )
             )
-            .andExpect(status().isNotFound());
+            .andExpect(status().isNotFound())
+            .andExpect(content().contentType("application/problem+json"));
     }
 
     @Test
@@ -351,7 +354,8 @@ class CompanyApiIntegrationTests {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(invalidJson)
             )
-            .andExpect(status().isUnprocessableEntity());
+            .andExpect(status().isUnprocessableEntity())
+            .andExpect(content().contentType("application/problem+json"));
     }
 
     private Integer createSkill(String name) {

@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -148,7 +149,8 @@ class SoftwareEngineerApiIntegrationTests {
 
         mockMvc
             .perform(get("/software-engineers/{id}", engineerId))
-            .andExpect(status().isNotFound());
+            .andExpect(status().isNotFound())
+            .andExpect(content().contentType("application/problem+json"));
     }
 
     @Test
@@ -209,7 +211,8 @@ class SoftwareEngineerApiIntegrationTests {
     void returnsNotFoundForMissingEngineerAndApplication() throws Exception {
         mockMvc
             .perform(get("/software-engineers/{id}", 999))
-            .andExpect(status().isNotFound());
+            .andExpect(status().isNotFound())
+            .andExpect(content().contentType("application/problem+json"));
 
         var postingId = createJobPosting("Frontend Engineer", 90000);
 
@@ -223,7 +226,8 @@ class SoftwareEngineerApiIntegrationTests {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(applicationJson)
             )
-            .andExpect(status().isNotFound());
+            .andExpect(status().isNotFound())
+            .andExpect(content().contentType("application/problem+json"));
 
         var skillId = createSkill("Python");
         var engineerId = createEngineer(
@@ -246,7 +250,8 @@ class SoftwareEngineerApiIntegrationTests {
                     9999
                 )
             )
-            .andExpect(status().isNotFound());
+            .andExpect(status().isNotFound())
+            .andExpect(content().contentType("application/problem+json"));
     }
 
     private Integer createSkill(String name) {

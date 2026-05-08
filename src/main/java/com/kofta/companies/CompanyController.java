@@ -10,6 +10,10 @@ import com.kofta.jobapplications.JobApplicationMapper;
 import com.kofta.jobapplications.JobApplicationService;
 import com.kofta.jobapplications.UpdateApplicationStatusDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -19,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,6 +50,18 @@ public class CompanyController {
 
     @GetMapping
     @Operation(summary = "List companies", operationId = "listCompanies")
+    @ApiResponses(
+        {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+        }
+    )
     public Slice<CompanyDto> getAll(@PageableDefault Pageable pageable) {
         return companyService
             .getAllCompanies(pageable)
@@ -54,6 +71,18 @@ public class CompanyController {
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
     @Operation(summary = "Create company", operationId = "createCompany")
+    @ApiResponses(
+        {
+            @ApiResponse(responseCode = "201", description = "Created"),
+            @ApiResponse(
+                responseCode = "400",
+                description = "Validation error",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+        }
+    )
     public CompanyDto create(@RequestBody @Valid CreateCompanyDto company) {
         return companyMapper.toDto(
             companyService.insertCompany(companyMapper.fromCreateDto(company))
@@ -65,6 +94,32 @@ public class CompanyController {
     @PreAuthorize("@sec.belongsToCompany(#id)")
     @PatchMapping("{id}")
     @Operation(summary = "Update company", operationId = "updateCompany")
+    @ApiResponses(
+        {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(
+                responseCode = "400",
+                description = "Validation error",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                description = "Not found",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+        }
+    )
     public CompanyDto update(
         @PathVariable Integer id,
         @RequestBody @Valid UpdateCompanyDto company
@@ -80,6 +135,25 @@ public class CompanyController {
     @PreAuthorize("@sec.belongsToCompany(#id)")
     @DeleteMapping("{id}")
     @Operation(summary = "Delete company", operationId = "deleteCompany")
+    @ApiResponses(
+        {
+            @ApiResponse(responseCode = "204", description = "No Content"),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                description = "Not found",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+        }
+    )
     public void delete(@PathVariable Integer id) {
         companyService.deleteCompany(id);
     }
@@ -88,6 +162,18 @@ public class CompanyController {
     @Operation(
         summary = "List job postings",
         operationId = "listCompanyJobPostings"
+    )
+    @ApiResponses(
+        {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(
+                responseCode = "404",
+                description = "Company not found",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+        }
     )
     public Slice<JobPostingItemDto> getPostings(
         @PathVariable Integer id,
@@ -105,6 +191,32 @@ public class CompanyController {
     @PostMapping("{id}/job-postings")
     @ResponseStatus(code = HttpStatus.CREATED)
     @Operation(summary = "Create job posting", operationId = "createJobPosting")
+    @ApiResponses(
+        {
+            @ApiResponse(responseCode = "201", description = "Created"),
+            @ApiResponse(
+                responseCode = "400",
+                description = "Validation error",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                description = "Company not found",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+        }
+    )
     public JobPostingDetailsDto createPosting(
         @PathVariable Integer id,
         @RequestBody CreateJobPostingDto posting
@@ -120,6 +232,18 @@ public class CompanyController {
 
     @GetMapping("{companyId}/job-postings/{postingId}")
     @Operation(summary = "Get job posting", operationId = "getJobPosting")
+    @ApiResponses(
+        {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(
+                responseCode = "404",
+                description = "Not found",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+        }
+    )
     public JobPostingDetailsDto getPosting(
         @PathVariable Integer companyId,
         @PathVariable Integer postingId
@@ -132,6 +256,32 @@ public class CompanyController {
     @PreAuthorize("@sec.belongsToCompany(#companyId)")
     @PatchMapping("{companyId}/job-postings/{postingId}")
     @Operation(summary = "Update job posting", operationId = "updateJobPosting")
+    @ApiResponses(
+        {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(
+                responseCode = "400",
+                description = "Validation error",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                description = "Not found",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+        }
+    )
     public JobPostingDetailsDto updatePosting(
         @PathVariable Integer companyId,
         @PathVariable Integer postingId,
@@ -150,6 +300,25 @@ public class CompanyController {
     @PreAuthorize("@sec.belongsToCompany(#companyId)")
     @DeleteMapping("{companyId}/job-postings/{postingId}")
     @Operation(summary = "Delete job posting", operationId = "deleteJobPosting")
+    @ApiResponses(
+        {
+            @ApiResponse(responseCode = "204", description = "No Content"),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                description = "Not found",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+        }
+    )
     public void deletePosting(
         @PathVariable Integer companyId,
         @PathVariable Integer postingId
@@ -162,6 +331,25 @@ public class CompanyController {
     @Operation(
         summary = "List job applications",
         operationId = "listJobApplications"
+    )
+    @ApiResponses(
+        {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                description = "Posting not found",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+        }
     )
     public List<JobApplicationDto> getApplications(
         @PathVariable Integer companyId,
@@ -182,6 +370,25 @@ public class CompanyController {
         summary = "Get job application details",
         operationId = "getJobApplicationDetails"
     )
+    @ApiResponses(
+        {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                description = "Not found",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+        }
+    )
     public JobApplicationDetailsDto getApplicationDetails(
         @PathVariable Integer companyId,
         @PathVariable Integer postingId,
@@ -200,6 +407,32 @@ public class CompanyController {
     @Operation(
         summary = "Update application status",
         operationId = "updateApplicationStatus"
+    )
+    @ApiResponses(
+        {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                description = "Not found",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "422",
+                description = "Invalid status transition",
+                content = @Content(
+                    schema = @Schema(implementation = ProblemDetail.class)
+                )
+            ),
+        }
     )
     public JobApplicationDto updateStatus(
         @PathVariable Integer companyId,

@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -17,22 +18,21 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiError> handleSoftwareEngineerNotFound(
+    public ResponseEntity<ProblemDetail> handleSoftwareEngineerNotFound(
         ResourceNotFoundException ex,
         HttpServletRequest request
     ) {
-        var error = ApiError.of(
+        var problem = buildProblemDetail(
             HttpStatus.NOT_FOUND,
             ex.getMessage(),
-            request.getRequestURI(),
-            null
+            request
         );
 
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(problem, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleValidationExceptions(
+    public ResponseEntity<ProblemDetail> handleValidationExceptions(
         MethodArgumentNotValidException ex,
         HttpServletRequest request
     ) {
@@ -46,104 +46,109 @@ public class GlobalExceptionHandler {
                 fieldErrors.put(fieldName, errorMessage);
             });
 
-        var error = ApiError.of(
+        var problem = buildProblemDetail(
             HttpStatus.BAD_REQUEST,
             "Validation failed",
-            request.getRequestURI(),
-            fieldErrors
+            request
         );
+        problem.setProperty("fieldErrors", fieldErrors);
 
-        return new ResponseEntity<ApiError>(error, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(problem, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ApiError> handleBadCredentialsException(
+    public ResponseEntity<ProblemDetail> handleBadCredentialsException(
         BadCredentialsException ex,
         HttpServletRequest request
     ) {
-        var error = ApiError.of(
+        var problem = buildProblemDetail(
             HttpStatus.UNAUTHORIZED,
             ex.getMessage(),
-            request.getRequestURI(),
-            null
+            request
         );
 
-        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(problem, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(DisabledException.class)
-    public ResponseEntity<ApiError> handleUserDisabledException(
+    public ResponseEntity<ProblemDetail> handleUserDisabledException(
         DisabledException ex,
         HttpServletRequest request
     ) {
-        var error = ApiError.of(
+        var problem = buildProblemDetail(
             HttpStatus.UNAUTHORIZED,
             ex.getMessage(),
-            request.getRequestURI(),
-            null
+            request
         );
 
-        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(problem, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)
-    public ResponseEntity<ApiError> handleAuthDeniedException(
+    public ResponseEntity<ProblemDetail> handleAuthDeniedException(
         AuthorizationDeniedException ex,
         HttpServletRequest request
     ) {
-        var error = ApiError.of(
+        var problem = buildProblemDetail(
             HttpStatus.FORBIDDEN,
             ex.getMessage(),
-            request.getRequestURI(),
-            null
+            request
         );
 
-        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(problem, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(ResourceAlreadyExists.class)
-    public ResponseEntity<ApiError> handleResourceAlreadyExists(
+    public ResponseEntity<ProblemDetail> handleResourceAlreadyExists(
         ResourceAlreadyExists ex,
         HttpServletRequest request
     ) {
-        var error = ApiError.of(
+        var problem = buildProblemDetail(
             HttpStatus.CONFLICT,
             ex.getMessage(),
-            request.getRequestURI(),
-            null
+            request
         );
 
-        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+        return new ResponseEntity<>(problem, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(InvalidStatusTransitionException.class)
-    public ResponseEntity<ApiError> handleInvalidStatusTransitionException(
+    public ResponseEntity<ProblemDetail> handleInvalidStatusTransitionException(
         InvalidStatusTransitionException ex,
         HttpServletRequest request
     ) {
-        var error = ApiError.of(
+        var problem = buildProblemDetail(
             HttpStatus.UNPROCESSABLE_ENTITY,
             ex.getMessage(),
-            request.getRequestURI(),
-            null
+            request
         );
 
-        return new ResponseEntity<>(error, HttpStatus.UNPROCESSABLE_ENTITY);
+        return new ResponseEntity<>(problem, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @ExceptionHandler
-    public ResponseEntity<ApiError> catchAll(
+    public ResponseEntity<ProblemDetail> catchAll(
         RuntimeException ex,
         HttpServletRequest request
     ) {
-        var error = ApiError.of(
+        var problem = buildProblemDetail(
             HttpStatus.INTERNAL_SERVER_ERROR,
             // TODO: Replace with "Something went wrong" after testing
             ex.getMessage(),
-            request.getRequestURI(),
-            null
+            request
         );
 
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(problem, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private ProblemDetail buildProblemDetail(
+        HttpStatus status,
+        String detail,
+        HttpServletRequest request
+    ) {
+        var problem = ProblemDetail.forStatusAndDetail(status, detail);
+        problem.setTitle(status.getReasonPhrase());
+        problem.setProperty("path", request.getRequestURI());
+        return problem;
     }
 }
