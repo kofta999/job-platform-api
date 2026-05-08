@@ -9,6 +9,7 @@ public interface JobApplicationRepository
     extends JpaRepository<JobApplication, Integer>
 {
     List<JobApplication> findAllByApplicantId(Integer applicantId);
+    List<JobApplication> findAllByPostingId(Integer postingId);
 
     @EntityGraph(
         attributePaths = {
@@ -16,6 +17,11 @@ public interface JobApplicationRepository
         }
     )
     Optional<JobApplication> findWithDetailsById(Integer id);
+
+    Optional<JobApplication> findByIdAndPosting_CompanyId(
+        Integer id,
+        Integer companyId
+    );
 
     boolean existsByApplicantIdAndPostingId(
         Integer applicantId,

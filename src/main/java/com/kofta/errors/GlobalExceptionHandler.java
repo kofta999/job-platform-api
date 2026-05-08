@@ -116,6 +116,21 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(InvalidStatusTransitionException.class)
+    public ResponseEntity<ApiError> handleInvalidStatusTransitionException(
+        InvalidStatusTransitionException ex,
+        HttpServletRequest request
+    ) {
+        var error = ApiError.of(
+            HttpStatus.UNPROCESSABLE_ENTITY,
+            ex.getMessage(),
+            request.getRequestURI(),
+            null
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
     @ExceptionHandler
     public ResponseEntity<ApiError> catchAll(
         RuntimeException ex,

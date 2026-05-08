@@ -4,9 +4,6 @@ import com.kofta.engineerprofiles.CreateEngineerProfileDto;
 import com.kofta.engineerprofiles.EngineerProfile;
 import com.kofta.engineerprofiles.EngineerProfileDto;
 import com.kofta.engineerprofiles.UpdateEngineerProfileDto;
-import com.kofta.jobapplications.JobApplication;
-import com.kofta.jobapplications.JobApplicationDetailsDto;
-import com.kofta.jobapplications.JobApplicationDto;
 import com.kofta.skills.Skill;
 import com.kofta.skills.SkillDto;
 import java.util.Set;
@@ -46,9 +43,4 @@ public interface SoftwareEngineerMapper {
             .map(this::toSkillDto)
             .collect(Collectors.toSet());
     }
-
-    // Job Applications
-
-    JobApplicationDto toDto(JobApplication jobApplication);
-    JobApplicationDetailsDto toDetailsDto(JobApplication jobApplication);
 }

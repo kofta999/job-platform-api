@@ -5,6 +5,7 @@ import com.kofta.engineerprofiles.UpdateEngineerProfileDto;
 import com.kofta.jobapplications.CreateJobApplicationDto;
 import com.kofta.jobapplications.JobApplicationDetailsDto;
 import com.kofta.jobapplications.JobApplicationDto;
+import com.kofta.jobapplications.JobApplicationMapper;
 import com.kofta.jobapplications.JobApplicationService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -32,7 +33,8 @@ public class SoftwareEngineerController {
 
     private final SoftwareEngineerService softwareEngineerService;
     private final JobApplicationService jobApplicationService;
-    private final SoftwareEngineerMapper mapper;
+    private final SoftwareEngineerMapper engineerMapper;
+    private final JobApplicationMapper jobApplicationMapper;
 
     @GetMapping
     public Slice<SoftwareEngineerDto> getAll(
@@ -42,12 +44,12 @@ public class SoftwareEngineerController {
     ) {
         return softwareEngineerService
             .getSoftwareEngineers(yearsGreaterEqual, skill, pageable)
-            .map(mapper::toDto);
+            .map(engineerMapper::toDto);
     }
 
     @GetMapping("{id}")
     public SoftwareEngineerWithProfileDto getById(@PathVariable Integer id) {
-        return mapper.toWithProfileDto(
+        return engineerMapper.toWithProfileDto(
             softwareEngineerService.getSoftwareEngineerById(id)
         );
     }
@@ -60,10 +62,10 @@ public class SoftwareEngineerController {
     ) {
         var eng = softwareEngineerService.updateSoftwareEngineer(
             id,
-            mapper.fromUpdateDto(updated)
+            engineerMapper.fromUpdateDto(updated)
         );
 
-        return mapper.toDto(eng);
+        return engineerMapper.toDto(eng);
     }
 
     @PreAuthorize("@sec.isSelfEngineer(#id)")
@@ -82,7 +84,7 @@ public class SoftwareEngineerController {
     ) {
         softwareEngineerService.insertEngineerProfile(
             engineerId,
-            mapper.fromCreateDto(newProfile)
+            engineerMapper.fromCreateDto(newProfile)
         );
     }
 
@@ -94,7 +96,7 @@ public class SoftwareEngineerController {
     ) {
         softwareEngineerService.updateEngineerProfile(
             engineerId,
-            mapper.fromUpdateDto(newProfile)
+            engineerMapper.fromUpdateDto(newProfile)
         );
     }
 
@@ -105,7 +107,7 @@ public class SoftwareEngineerController {
         @PathVariable Integer engineerId,
         @RequestBody @Valid CreateJobApplicationDto application
     ) {
-        return mapper.toDto(
+        return jobApplicationMapper.toDto(
             jobApplicationService.submitApplication(
                 engineerId,
                 application.postingId()
@@ -121,7 +123,7 @@ public class SoftwareEngineerController {
         return jobApplicationService
             .getApplicationsForEngineer(engineerId)
             .stream()
-            .map(mapper::toDto)
+            .map(jobApplicationMapper::toDto)
             .toList();
     }
 
@@ -131,8 +133,8 @@ public class SoftwareEngineerController {
         @PathVariable Integer engineerId,
         @PathVariable Integer applicationId
     ) {
-        return mapper.toDetailsDto(
-            jobApplicationService.getApplicationDetails(
+        return jobApplicationMapper.toDetailsDto(
+            jobApplicationService.getApplicationDetailsForEngineer(
                 engineerId,
                 applicationId
             )

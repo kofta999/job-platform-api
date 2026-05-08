@@ -17,4 +17,6 @@ public interface JobPostingRepository
         Specification<JobPosting> spec,
         Pageable pageable
     );
+
+    boolean existsByIdAndCompany_Id(Integer postingId, Integer companyId);
 }

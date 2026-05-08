@@ -2,6 +2,7 @@ package com.kofta.jobapplications;
 
 import com.kofta.companies.jobpostings.JobPosting;
 import com.kofta.companies.jobpostings.JobPostingRepository;
+import com.kofta.errors.InvalidStatusTransitionException;
 import com.kofta.errors.ResourceAlreadyExists;
 import com.kofta.errors.ResourceNotFoundException;
 import com.kofta.softwareengineers.SoftwareEngineer;
@@ -65,7 +66,8 @@ public class JobApplicationService {
         return jobApplicationRepository.findAllByApplicantId(engineerId);
     }
 
-    public JobApplication getApplicationDetails(
+    @Transactional(readOnly = true)
+    public JobApplication getApplicationDetailsForEngineer(
         Integer engineerId,
         Integer applicationId
     ) {
@@ -79,6 +81,72 @@ public class JobApplicationService {
             );
 
         if (!application.getApplicant().getId().equals(engineerId)) {
+            throw new ResourceNotFoundException(
+                JobApplication.class,
+                applicationId
+            );
+        }
+
+        return application;
+    }
+
+    @Transactional
+    public JobApplication updateApplicationStatus(
+        Integer applicationId,
+        Integer companyId,
+        JobApplicationStatus newStatus
+    ) {
+        var application = jobApplicationRepository
+            .findByIdAndPosting_CompanyId(applicationId, companyId)
+            .orElseThrow(() ->
+                new ResourceNotFoundException(
+                    JobApplication.class,
+                    applicationId
+                )
+            );
+
+        var currentStatus = application.getStatus();
+
+        if (!application.getStatus().canTransitionTo(newStatus)) {
+            throw new InvalidStatusTransitionException(
+                currentStatus,
+                newStatus
+            );
+        }
+
+        application.setStatus(newStatus);
+
+        return jobApplicationRepository.save(application);
+    }
+
+    public List<JobApplication> getApplicationsForPosting(
+        Integer companyId,
+        Integer postingId
+    ) {
+        if (
+            !jobPostingRepository.existsByIdAndCompany_Id(postingId, companyId)
+        ) {
+            throw new ResourceNotFoundException(JobPosting.class, postingId);
+        }
+
+        return jobApplicationRepository.findAllByPostingId(postingId);
+    }
+
+    @Transactional(readOnly = true)
+    public JobApplication getApplicationDetailsForCompany(
+        Integer companyId,
+        Integer applicationId
+    ) {
+        var application = jobApplicationRepository
+            .findWithDetailsById(applicationId)
+            .orElseThrow(() ->
+                new ResourceNotFoundException(
+                    JobApplication.class,
+                    applicationId
+                )
+            );
+
+        if (!application.getPosting().getCompany().getId().equals(companyId)) {
             throw new ResourceNotFoundException(
                 JobApplication.class,
                 applicationId

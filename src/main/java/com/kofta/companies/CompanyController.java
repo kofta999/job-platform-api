@@ -4,7 +4,13 @@ import com.kofta.companies.jobpostings.CreateJobPostingDto;
 import com.kofta.companies.jobpostings.JobPostingDetailsDto;
 import com.kofta.companies.jobpostings.JobPostingItemDto;
 import com.kofta.companies.jobpostings.UpdateJobPostingDto;
+import com.kofta.jobapplications.JobApplicationDetailsDto;
+import com.kofta.jobapplications.JobApplicationDto;
+import com.kofta.jobapplications.JobApplicationMapper;
+import com.kofta.jobapplications.JobApplicationService;
+import com.kofta.jobapplications.UpdateApplicationStatusDto;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -28,18 +34,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class CompanyController {
 
     private final CompanyService companyService;
-    private final CompanyMapper mapper;
+    private final JobApplicationService jobApplicationService;
+    private final CompanyMapper companyMapper;
+    private final JobApplicationMapper jobApplicationMapper;
 
     @GetMapping
     public Slice<CompanyDto> getAll(@PageableDefault Pageable pageable) {
-        return companyService.getAllCompanies(pageable).map(mapper::toDto);
+        return companyService
+            .getAllCompanies(pageable)
+            .map(companyMapper::toDto);
     }
 
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
     public CompanyDto create(@RequestBody @Valid CreateCompanyDto company) {
-        return mapper.toDto(
-            companyService.insertCompany(mapper.fromCreateDto(company))
+        return companyMapper.toDto(
+            companyService.insertCompany(companyMapper.fromCreateDto(company))
         );
     }
 
@@ -51,8 +61,11 @@ public class CompanyController {
         @PathVariable Integer id,
         @RequestBody @Valid UpdateCompanyDto company
     ) {
-        return mapper.toDto(
-            companyService.updateCompany(id, mapper.fromUpdateDto(company))
+        return companyMapper.toDto(
+            companyService.updateCompany(
+                id,
+                companyMapper.fromUpdateDto(company)
+            )
         );
     }
 
@@ -72,7 +85,7 @@ public class CompanyController {
     ) {
         return companyService
             .getCompanyJobPostings(id, skill, minSalary, maxSalary, pageable)
-            .map(mapper::toItemDto);
+            .map(companyMapper::toItemDto);
     }
 
     @PreAuthorize("@sec.belongsToCompany(#id)")
@@ -82,10 +95,10 @@ public class CompanyController {
         @PathVariable Integer id,
         @RequestBody CreateJobPostingDto posting
     ) {
-        return mapper.toDetailsDto(
+        return companyMapper.toDetailsDto(
             companyService.insertJobPosting(
                 id,
-                mapper.fromCreateDto(posting),
+                companyMapper.fromCreateDto(posting),
                 posting.skillIds()
             )
         );
@@ -96,7 +109,7 @@ public class CompanyController {
         @PathVariable Integer companyId,
         @PathVariable Integer postingId
     ) {
-        return mapper.toDetailsDto(
+        return companyMapper.toDetailsDto(
             companyService.getCompanyJobPosting(companyId, postingId)
         );
     }
@@ -108,11 +121,11 @@ public class CompanyController {
         @PathVariable Integer postingId,
         @RequestBody UpdateJobPostingDto posting
     ) {
-        return mapper.toDetailsDto(
+        return companyMapper.toDetailsDto(
             companyService.updateJobPosting(
                 companyId,
                 postingId,
-                mapper.fromUpdateDto(posting),
+                companyMapper.fromUpdateDto(posting),
                 posting.skillIds()
             )
         );
@@ -125,5 +138,51 @@ public class CompanyController {
         @PathVariable Integer postingId
     ) {
         companyService.deleteJobPosting(companyId, postingId);
+    }
+
+    @PreAuthorize("@sec.belongsToCompany(#companyId)")
+    @GetMapping("{companyId}/job-postings/{postingId}/applications")
+    public List<JobApplicationDto> getApplications(
+        @PathVariable Integer companyId,
+        @PathVariable Integer postingId
+    ) {
+        return jobApplicationService
+            .getApplicationsForPosting(companyId, postingId)
+            .stream()
+            .map(jobApplicationMapper::toDto)
+            .toList();
+    }
+
+    @PreAuthorize("@sec.belongsToCompany(#companyId)")
+    @GetMapping(
+        "{companyId}/job-postings/{postingId}/applications/{applicationId}"
+    )
+    public JobApplicationDetailsDto getApplicationDetails(
+        @PathVariable Integer companyId,
+        @PathVariable Integer postingId,
+        @PathVariable Integer applicationId
+    ) {
+        return jobApplicationMapper.toDetailsDto(
+            jobApplicationService.getApplicationDetailsForCompany(
+                companyId,
+                applicationId
+            )
+        );
+    }
+
+    @PreAuthorize("@sec.belongsToCompany(#companyId)")
+    @PatchMapping("{companyId}/applications/{applicationId}/status")
+    public JobApplicationDto updateStatus(
+        @PathVariable Integer companyId,
+        @PathVariable Integer applicationId,
+        @RequestBody @Valid UpdateApplicationStatusDto request
+    ) {
+        return jobApplicationMapper.toDto(
+            jobApplicationService.updateApplicationStatus(
+                applicationId,
+                companyId,
+                request.newStatus()
+            )
+        );
     }
 }
