@@ -5,6 +5,8 @@ import com.kofta.companies.jobpostings.JobPosting;
 import com.kofta.softwareengineers.SoftwareEngineer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -38,6 +40,8 @@ public class JobApplication extends BaseAuditableEntity {
     @Column(name = "applied_date")
     private LocalDateTime appliedDate;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private JobApplicationStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
