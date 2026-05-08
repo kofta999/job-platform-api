@@ -17,14 +17,14 @@ import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
-// import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
-// @Profile("dev")
+@Profile("dev")
 public class DataInitializer implements CommandLineRunner {
 
     private final SkillRepository skillRepository;
